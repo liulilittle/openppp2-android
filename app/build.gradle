@@ -1,0 +1,67 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'supersocksr.ppp.android'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'supersocksr.ppp.android'
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags ''
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+    buildToolsVersion '21.1.2'
+    ndkVersion '20.1.5948944'
+    externalNativeBuild {
+        cmake {
+            // When you need to debug the libopenppp2 open source library embedded in Android, uncomment the code declaration here.
+            // path file('src/main/cpp/CMakeLists.txt')
+            // version '3.22.1'
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    //noinspection GradleDependency
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'com.google.code.gson:gson:2.10'
+    implementation 'com.jaredrummler:android-processes:1.1.1'
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+    implementation 'org.jetbrains:annotations:23.0.0'
+}
