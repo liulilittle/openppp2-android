@@ -234,7 +234,7 @@ public abstract class VPNConnection extends VpnService {
             return Macro.RUN_UNKNOWN;
         }
 
-        // int tun, boolean vnet, boolean block_quic, String ip, String mask, String gw
+        // New and build VPN interface configuration information.
         NetworkInterface network_interface = new NetworkInterface();
         network_interface.block_quic = config.BlockQUIC;
         network_interface.static_mode = config.StaticMode;
@@ -243,9 +243,15 @@ public abstract class VPNConnection extends VpnService {
         network_interface.mask = config.SubnetAddress;
         network_interface.vnet = config.VirtualSubnet;
         network_interface.tun = FileX.file_descriptor_to_int(tun_fd);
+        if (!VPN.vpn_set_flash_mode(config.FlashMode)) {
+            X.close(tun);
+            return Macro.RUN_UNKNOWN;
+        }
 
+        // Set the network interface to the VPN loopback.
         int err = VPN.vpn_set_network_interface(network_interface);
         if (err == libopenppp2.LIBOPENPPP2_ERROR_NEW_NETWORKINTERFACE_FAIL) {
+            X.close(tun);
             return Macro.RUN_ALLOCATED_MEMORY;
         }
 

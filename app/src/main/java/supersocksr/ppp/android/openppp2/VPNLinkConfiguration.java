@@ -13,42 +13,59 @@ public class VPNLinkConfiguration {
     @SerializedName("DnsAddresses")
     @Expose(serialize = true, deserialize = true)
     public final Set<String> DnsAddresses = new HashSet<String>();
+
     @SerializedName("AllowedApplicationPackageNames")
     @Expose(serialize = true, deserialize = true)
     public final Set<String> AllowedApplicationPackageNames = new HashSet<String>();
+
     @SerializedName("DisallowedApplicationPackageNames")
     @Expose(serialize = true, deserialize = true)
     public final Set<String> DisallowedApplicationPackageNames = new HashSet<String>();
+
     @SerializedName("BypassIpListFiles")
     @Expose(serialize = true, deserialize = true)
     public final Collection<String> BypassIpListFiles = new HashSet<String>();
+
     @SerializedName("VPNConfiguration")
     @Expose(serialize = true, deserialize = true)
     public final VPNConfiguration VPNConfiguration = new VPNConfiguration();
+
     @SerializedName("IPAddress")
     @Expose(serialize = true, deserialize = true)
     public String IPAddress;
+
     @SerializedName("GatewayServer")
     @Expose(serialize = true, deserialize = true)
     public String GatewayServer;
+
     @SerializedName("SubnetAddress")
     @Expose(serialize = true, deserialize = true)
     public String SubnetAddress;
+
     @SerializedName("BlockQUIC")
     @Expose(serialize = true, deserialize = true)
     public boolean BlockQUIC;
+
     @SerializedName("StaticMode")
     @Expose(serialize = true, deserialize = true)
     public boolean StaticMode;
+
+    @SerializedName("FlashMode")
+    @Expose(serialize = true, deserialize = true)
+    public boolean FlashMode = true;
+
     @SerializedName("VirtualSubnet")
     @Expose(serialize = true, deserialize = true)
     public boolean VirtualSubnet;
+
     @SerializedName("AtomicHttpProxySet")
     @Expose(serialize = true, deserialize = true)
     public boolean AtomicHttpProxySet;
+
     @SerializedName("DNSRuleList")
     @Expose(serialize = true, deserialize = true)
     public String DNSRuleList;
+
     @SerializedName("BypassIpList")
     @Expose(serialize = true, deserialize = true)
     public String BypassIpList;

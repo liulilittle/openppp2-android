@@ -68,6 +68,16 @@ public final class VPN {
         return libopenppp2.c.get_link_state();
     }
 
+    // Set the VPN to flash mode, return < 0 Fails，= 0 Normal，> 0 Flash.
+    public static boolean vpn_set_flash_mode(boolean value) {
+        return libopenppp2.c.set_default_flash_type_of_service(value);
+    }
+
+    // Get the VPN to flash mode.
+    public static int vpn_get_flash_mode() {
+        return libopenppp2.c.is_default_flash_type_of_service();
+    }
+
     // Get the ip route list that the current VPN configuration bypasses.
     public static String vpn_get_bypass_ip_list() {
         return libopenppp2.c.get_bypass_ip_list();

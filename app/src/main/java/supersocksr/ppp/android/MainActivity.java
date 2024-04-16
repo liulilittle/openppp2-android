@@ -29,6 +29,7 @@ public class MainActivity extends PppVpnActivity {
         config.VirtualSubnet = true;
         config.BlockQUIC = true;
         config.StaticMode = true;
+        config.FlashMode = false;
         config.AtomicHttpProxySet = true;
         config.DnsAddresses.add("8.8.8.8");
         config.DnsAddresses.add("8.8.4.4");

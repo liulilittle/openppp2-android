@@ -102,6 +102,10 @@ public final class libopenppp2 {
 
     public native boolean ip_address_string_is_invalid(String address);
 
+    public native boolean set_default_flash_type_of_service(boolean flash_mode);
+
+    public native int is_default_flash_type_of_service();
+
     public native void clear_configure();
 
     public native String get_http_proxy_address_endpoint();
