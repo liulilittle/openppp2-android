@@ -27,17 +27,16 @@ public class MainActivity extends PppVpnActivity {
         config.GatewayServer = "10.0.0.1";
         config.IPAddress = "10.0.0.211";
         config.VirtualSubnet = true;
-        config.BlockQUIC = true;
+        config.BlockQUIC = false;
         config.StaticMode = true;
         config.FlashMode = false;
         config.AtomicHttpProxySet = true;
         config.DnsAddresses.add("8.8.8.8");
         config.DnsAddresses.add("8.8.4.4");
 
-        config.BypassIpList = "223.5.5.5\r\n" + "223.6.6.6\r\n" + "120.197.153.0/24\r\n";
         config.BypassIpListFiles.add(PathX.path_get_cache_dir(MainActivity.this) + "/ip.txt");
 
-        config.DNSRuleList = "baidu.com/1.2.4.8/nic\r\n" + "google.com/1.1.1.1/tun\r\n";
+        config.DNSRuleList = "baidu.com/1.2.4.8/nic";
         config.AllowedApplicationPackageNames.add(PackageX.package_get_package_name(MainActivity.this));
         config.DisallowedApplicationPackageNames.add(PackageX.package_get_package_name(MainActivity.this));
 
@@ -66,9 +65,9 @@ public class MainActivity extends PppVpnActivity {
         vpn.udp.static_.quic = true;
         vpn.udp.static_.dns = true;
         vpn.udp.static_.icmp = true;
-        vpn.udp.static_.keep_alived[0] = 1;
-        vpn.udp.static_.keep_alived[1] = 5;
-        vpn.udp.static_.servers.add("192.168.0.24:20000");
+        vpn.udp.static_.keep_alived[0] = 0;
+        vpn.udp.static_.keep_alived[1] = 0;
+        vpn.udp.static_.servers.add("23.26.232.16:20000");
 
         vpn.websocket.verify_peer = true;
         vpn.websocket.http.error = "Status Code: 404; Not Found";
@@ -82,7 +81,7 @@ public class MainActivity extends PppVpnActivity {
         vpn.websocket.http.response.put("Server", "Kestrel");
 
         vpn.client.guid = "{14261208-BB45-4DEB-B115-0FEA1D91B85B}";
-        vpn.client.server = "ppp://192.168.0.24:20000/";
+        vpn.client.server = "ppp://23.26.232.16:20000/";
         vpn.client.bandwidth = 0;
         vpn.client.reconnections.timeout = Macro.PPP_TCP_CONNECT_TIMEOUT;
         vpn.client.http_proxy.bind = "127.0.0.1";
