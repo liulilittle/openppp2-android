@@ -138,29 +138,34 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_start"
+            style="?attr/materialIconButtonFilledTonalStyle"
             android:layout_width="0dp"
             android:layout_height="80dp"
             android:layout_margin="20dp"
             android:layout_weight="1"
+            android:clickable="true"
             android:text="Start"
             android:textSize="20sp"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_stop"
+            style="?attr/materialIconButtonFilledTonalStyle"
             android:layout_width="0dp"
             android:layout_height="80dp"
             android:layout_margin="20dp"
             android:layout_weight="1"
+            android:clickable="true"
             android:text="Stop"
             android:textSize="20sp"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent" />
+
     </LinearLayout>
 
 

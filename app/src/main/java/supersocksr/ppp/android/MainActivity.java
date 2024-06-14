@@ -2,7 +2,9 @@ package supersocksr.ppp.android;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.InputStream;
@@ -18,6 +20,8 @@ public class MainActivity extends PppVpnActivity {
     private TextInputEditText static_server;
     private TextInputEditText uuid;
     private TextInputEditText tunip;
+    private MaterialButton btn_start, btn_stop;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,8 +32,20 @@ public class MainActivity extends PppVpnActivity {
             static_server = findViewById(R.id.staticserver);
             uuid = findViewById(R.id.guidNumber);
             tunip = findViewById(R.id.tunIP);
-            findViewById(R.id.btn_start).setOnClickListener(v -> vpn_run());
-            findViewById(R.id.btn_stop).setOnClickListener(v -> vpn_stop());
+            btn_start = findViewById(R.id.btn_start);
+            btn_stop = findViewById(R.id.btn_stop);
+            btn_start.setOnClickListener(v -> {
+                vpn_run();
+                btn_start.setClickable(false);
+                btn_stop.setClickable(true);
+                Toast.makeText(this, "Start openppp2.", Toast.LENGTH_SHORT).show();
+            });
+            findViewById(R.id.btn_stop).setOnClickListener(v -> {
+                vpn_stop();
+                btn_start.setClickable(true);
+                btn_stop.setClickable(false);
+                Toast.makeText(this, "Stop openppp2.", Toast.LENGTH_SHORT).show();
+            });
             server.setOnFocusChangeListener((v, hasFocus) -> {
                 if (!hasFocus) {
                     saveInput(server);
