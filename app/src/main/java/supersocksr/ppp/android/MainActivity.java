@@ -1,13 +1,11 @@
 package supersocksr.ppp.android;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.EditText;
 
-import java.io.BufferedReader;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+
+import com.google.android.material.textfield.TextInputEditText;
+
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.stream.Collectors;
 
 import supersocksr.ppp.android.openppp2.Macro;
 import supersocksr.ppp.android.openppp2.PackageX;
@@ -15,28 +13,69 @@ import supersocksr.ppp.android.openppp2.VPNConfiguration;
 import supersocksr.ppp.android.openppp2.VPNLinkConfiguration;
 
 
-
-
 public class MainActivity extends PppVpnActivity {
-    private EditText server;
-    private EditText static_server;
-    private EditText uuid;
-    private EditText tunip;
+    private TextInputEditText server;
+    private TextInputEditText static_server;
+    private TextInputEditText uuid;
+    private TextInputEditText tunip;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (!is_reload_activity_by_launcher()) {
             setContentView(R.layout.activity_main);
-            server=findViewById(R.id.serverAddress);
-            static_server=findViewById(R.id.staticserver);
-            uuid=findViewById(R.id.guidNumber);
-            tunip=findViewById(R.id.tunIP);
+            server = findViewById(R.id.serverAddress);
+            static_server = findViewById(R.id.staticserver);
+            uuid = findViewById(R.id.guidNumber);
+            tunip = findViewById(R.id.tunIP);
             findViewById(R.id.btn_start).setOnClickListener(v -> vpn_run());
             findViewById(R.id.btn_stop).setOnClickListener(v -> vpn_stop());
+            server.setOnFocusChangeListener((v, hasFocus) -> {
+                if (!hasFocus) {
+                    saveInput(server);
+                }
+            });
+            static_server.setOnFocusChangeListener((v, hasFocus) -> {
+                if (!hasFocus) {
+                    saveInput(static_server);
+                }
+            });
+            uuid.setOnFocusChangeListener((v, hasFocus) -> {
+                if (!hasFocus) {
+                    saveInput(uuid);
+                }
+            });
+            tunip.setOnFocusChangeListener((v, hasFocus) -> {
+                if (!hasFocus) {
+                    saveInput(tunip);
+                }
+            });
+            loadInput(server);
+            loadInput(static_server);
+            loadInput(uuid);
+            loadInput(tunip);
         }
     }
 
-private String readRawIpBypass() {
+
+    private void loadInput(TextInputEditText editText) {
+        // get SharedPreferences object
+        SharedPreferences sharedPreferences = getSharedPreferences("UserInput", MODE_PRIVATE);
+        editText.setText(sharedPreferences.getString(getResources().getResourceEntryName(editText.getId()), ""));
+    }
+
+    private void saveInput(TextInputEditText editText) {
+        // get SharedPreferences object
+        SharedPreferences sharedPreferences = getSharedPreferences("UserInput", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        // save value
+        String key = getResources().getResourceEntryName(editText.getId());
+        editor.putString(key, editText.getText().toString());
+        editor.apply();
+    }
+
+    private String readRawIpBypass() {
         String result = "";
         try {
             InputStream is = getResources().openRawResource(R.raw.ip);
@@ -44,13 +83,13 @@ private String readRawIpBypass() {
             byte[] buffer = new byte[length];
             is.read(buffer);
             result = new String(buffer, "utf8");
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return result;
-}
+    }
 
-private String readRawDomainBypass() {
+    private String readRawDomainBypass() {
         String result = "";
         try {
             InputStream is = getResources().openRawResource(R.raw.domain);
@@ -58,7 +97,7 @@ private String readRawDomainBypass() {
             byte[] buffer = new byte[length];
             is.read(buffer);
             result = new String(buffer, "utf8");
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return result;
@@ -71,8 +110,8 @@ private String readRawDomainBypass() {
         String ip_addr = tunip.getText().toString().trim();
         String[] temp;
         String delimiter = "\\.";
-        temp=ip_addr.split(delimiter);
-        config.GatewayServer = temp[0]+"."+temp[1]+"."+temp[2]+"."+"1";
+        temp = ip_addr.split(delimiter);
+        config.GatewayServer = temp[0] + "." + temp[1] + "." + temp[2] + "." + "1";
         config.IPAddress = ip_addr;
         config.VirtualSubnet = true;
         config.BlockQUIC = false;
