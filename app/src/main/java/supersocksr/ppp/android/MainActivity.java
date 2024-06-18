@@ -18,11 +18,9 @@ import supersocksr.ppp.android.openppp2.VPNLinkConfiguration;
 public class MainActivity extends PppVpnActivity {
     private TextInputEditText server;
     private TextInputEditText static_server;
-    private TextInputEditText uuid;
     private TextInputEditText tunip;
     private MaterialButton btn_start, btn_stop;
-
-
+    private boolean blankTunIp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,25 +49,21 @@ public class MainActivity extends PppVpnActivity {
                     saveInput(server);
                 }
             });
-            static_server.setOnFocusChangeListener((v, hasFocus) -> {
-                if (!hasFocus) {
-                    saveInput(static_server);
-                }
-            });
-            uuid.setOnFocusChangeListener((v, hasFocus) -> {
-                if (!hasFocus) {
-                    saveInput(uuid);
-                }
-            });
             tunip.setOnFocusChangeListener((v, hasFocus) -> {
                 if (!hasFocus) {
                     saveInput(tunip);
                 }
             });
             loadInput(server);
-            loadInput(static_server);
             loadInput(uuid);
             loadInput(tunip);
+            static_server=findViewById(R.id.staticserver);
+            if (static_server.getText().toString().trim().isEmpty()) {
+                blankTunIp = true;
+            } else blankTunIp = false;
+            tunip=findViewById(R.id.tunIP);
+            findViewById(R.id.btn_start).setOnClickListener(v -> vpn_run());
+            findViewById(R.id.btn_stop).setOnClickListener(v -> vpn_stop());
         }
     }
 
@@ -119,6 +113,8 @@ public class MainActivity extends PppVpnActivity {
         return result;
     }
 
+
+
     @Override
     protected VPNLinkConfiguration vpn_load() {
         VPNLinkConfiguration config = new VPNLinkConfiguration();
@@ -131,7 +127,7 @@ public class MainActivity extends PppVpnActivity {
         config.IPAddress = ip_addr;
         config.VirtualSubnet = true;
         config.BlockQUIC = false;
-        config.StaticMode = true;
+        config.StaticMode = !blankTunIp;
         config.FlashMode = false;
         config.AtomicHttpProxySet = false;
         config.DnsAddresses.add("8.8.8.8");
@@ -170,8 +166,8 @@ public class MainActivity extends PppVpnActivity {
         vpn.udp.static_.icmp = true;
         vpn.udp.static_.keep_alived[0] = 0;
         vpn.udp.static_.keep_alived[1] = 0;
-        vpn.udp.static_.servers.add(static_server.getText().toString().trim());
 
+        vpn.udp.static_.servers.add(static_server.getText().toString().trim());
         vpn.websocket.verify_peer = true;
         vpn.websocket.http.error = "Status Code: 404; Not Found";
         vpn.websocket.http.request.put("Cache-Control", "no-cache");
