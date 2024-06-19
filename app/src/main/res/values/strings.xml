@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">openppp2</string>
+    <string name="vpn_start">Start</string>
+    <string name="vpn_stop">Stop</string>
 </resources>

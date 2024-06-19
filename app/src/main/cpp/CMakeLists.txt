@@ -54,8 +54,8 @@ INCLUDE(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
 CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX1Z)
 
-# According to the type of operating system to determine whether you need to check whether the compiler supports C/C++17,
-# On the MACOS system, the following check code is invalid, so directly specify the standard version of C/C++,
+# According to the type of operating system to determine whether you need to check whether the compiler supports C/C++17, 
+# On the MACOS system, the following check code is invalid, so directly specify the standard version of C/C++, 
 # If an error or compilation does not pass, it means that you need to upgrade the LLVM GCC/CLANG compiler installed on MACOS.
 
 # CXX17
@@ -93,7 +93,6 @@ FILE(GLOB_RECURSE SOURCE_FILES
         ${PROJECT_ROOT_DIR}/common/lwip/core/*.c
         ${PROJECT_ROOT_DIR}/common/lwip/api/*.c
 
-        ${PROJECT_ROOT_DIR}/common/aggligator/*.cpp
         ${PROJECT_ROOT_DIR}/common/base64/*.cpp
         ${PROJECT_ROOT_DIR}/common/chnroutes2/*.cpp
         ${PROJECT_ROOT_DIR}/common/json/src/*.cpp
