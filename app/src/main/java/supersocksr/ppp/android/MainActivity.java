@@ -19,8 +19,10 @@ public class MainActivity extends PppVpnActivity {
     private TextInputEditText server;
     private TextInputEditText static_server;
     private TextInputEditText tunip;
+    private TextInputEditText uuid;
     private MaterialButton btn_start, btn_stop;
     private boolean blankTunIp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,11 +59,11 @@ public class MainActivity extends PppVpnActivity {
             loadInput(server);
             loadInput(uuid);
             loadInput(tunip);
-            static_server=findViewById(R.id.staticserver);
+            static_server = findViewById(R.id.staticserver);
             if (static_server.getText().toString().trim().isEmpty()) {
                 blankTunIp = true;
             } else blankTunIp = false;
-            tunip=findViewById(R.id.tunIP);
+            tunip = findViewById(R.id.tunIP);
             findViewById(R.id.btn_start).setOnClickListener(v -> vpn_run());
             findViewById(R.id.btn_stop).setOnClickListener(v -> vpn_stop());
         }
@@ -112,7 +114,6 @@ public class MainActivity extends PppVpnActivity {
         }
         return result;
     }
-
 
 
     @Override

@@ -34,16 +34,6 @@ public final class NetworkListener {
             NetworkCapabilities.TRANSPORT_ETHERNET, NetworkCapabilities.TRANSPORT_WIFI, NetworkCapabilities.TRANSPORT_BLUETOOTH, NetworkCapabilities.TRANSPORT_WIFI_AWARE, NetworkCapabilities.TRANSPORT_LOWPAN, NetworkCapabilities.TRANSPORT_USB, NetworkCapabilities.TRANSPORT_CELLULAR,};
     private boolean allow_no_activity_network_ = true;
 
-    // Gets whether no active network is currently allowed, otherwise the VPN connection will be automatically disconnected when this happens.
-    public boolean allow_no_activity_network() {
-        return this.allow_no_activity_network_;
-    }
-
-    // Set whether no active network is currently allowed. Otherwise, the VPN connection will be automatically disconnected.
-    public void allow_no_activity_network(boolean allow) {
-        this.allow_no_activity_network_ = allow;
-    }
-
     // Choose all available and online network card equipment.
     @Nullable
     private static NetworkCapabilities network_check_is_available_network(@NotNull ConnectivityManager connectivityManager, @NotNull Network network) {
@@ -388,6 +378,16 @@ public final class NetworkListener {
         } catch (Throwable ignored) {
             return -1;
         }
+    }
+
+    // Gets whether no active network is currently allowed, otherwise the VPN connection will be automatically disconnected when this happens.
+    public boolean allow_no_activity_network() {
+        return this.allow_no_activity_network_;
+    }
+
+    // Set whether no active network is currently allowed. Otherwise, the VPN connection will be automatically disconnected.
+    public void allow_no_activity_network(boolean allow) {
+        this.allow_no_activity_network_ = allow;
     }
 
     // The network that handles the current preferred physical activity.
