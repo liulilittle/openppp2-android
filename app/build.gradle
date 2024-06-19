@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId 'supersocksr.ppp.android'
-        minSdk 21
+        minSdk 24
         targetSdk 34
         versionCode 1
         versionName "1.0"
@@ -23,8 +23,9 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
         }
     }
 

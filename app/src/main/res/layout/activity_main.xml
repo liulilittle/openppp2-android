@@ -1,29 +1,176 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    app:layoutDescription="@xml/activity_main_scene"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/btn_start"
-        android:layout_width="160dp"
-        android:layout_height="105dp"
-        android:text="start"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="visible" />
-
-    <Button
-        android:id="@+id/btn_stop"
-        android:layout_width="160dp"
-        android:layout_height="105dp"
-        android:text="Stop"
-        app:layout_constraintEnd_toEndOf="parent"
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="Server IP and port"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/serverAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="ppp://192.168.0.24:20000"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="GUID"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textInputLayout3" />
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView2">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/guidNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="random"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Static Server and Port"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textInputLayout2" />
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView3">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/staticserver"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="192.168.0.24:20000"
+            android:inputType="text"
+            android:textColorHint="@color/design_default_color_background" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="tun address"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textInputLayout4" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView4">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tunIP"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="10.0.0.214"
+            android:inputType="text"
+            android:text="10.0.0.214" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:id="@+id/buttonLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_start"
+            style="?attr/materialIconButtonFilledTonalStyle"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_margin="20dp"
+            android:layout_weight="1"
+            android:backgroundTint="@drawable/default_button"
+            android:clickable="true"
+            android:focusable="true"
+            android:text="@string/vpn_start"
+            android:textSize="20sp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_stop"
+            style="?attr/materialIconButtonFilledTonalStyle"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_margin="20dp"
+            android:layout_weight="1"
+            android:backgroundTint="@drawable/default_button"
+            android:clickable="true"
+            android:focusable="true"
+            android:text="@string/vpn_stop"
+            android:textSize="20sp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.motion.widget.MotionLayout>
