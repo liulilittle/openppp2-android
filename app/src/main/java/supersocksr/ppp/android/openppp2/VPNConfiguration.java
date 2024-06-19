@@ -65,6 +65,7 @@ public final class VPNConfiguration {
         config.udp.static_.icmp = true;
         config.udp.static_.keep_alived[0] = 0;
         config.udp.static_.keep_alived[1] = 0;
+        config.udp.static_.aggligator = 0;
         config.udp.static_.servers.clear();
 
         config.websocket.verify_peer = true;
@@ -182,6 +183,10 @@ public final class VPNConfiguration {
             @Expose(serialize = true, deserialize = true)
             public final int[] keep_alived = new int[2];
 
+            @SerializedName("servers")
+            @Expose(serialize = true, deserialize = true)
+            public final Set<String> servers = new HashSet<String>();
+
             @SerializedName("dns")
             @Expose(serialize = true, deserialize = true)
             public boolean dns;
@@ -197,10 +202,6 @@ public final class VPNConfiguration {
             @SerializedName("aggligator")
             @Expose(serialize = true, deserialize = true)
             public int aggligator;
-
-            @SerializedName("servers")
-            @Expose(serialize = true, deserialize = true)
-            public final Set<String> servers = new HashSet<String>();
         }
     }
 

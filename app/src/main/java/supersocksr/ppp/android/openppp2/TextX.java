@@ -1,5 +1,6 @@
 package supersocksr.ppp.android.openppp2;
 
+import android.text.Editable;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -336,5 +337,31 @@ public final class TextX {
         }
         sb.append(suffix);
         return sb.toString();
+    }
+
+    // Converts the editable object to a string.
+    public static String to_string(Editable editable) {
+        if (editable == null) {
+            return null;
+        }
+
+        try {
+            return editable.toString();
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
+    // Safely calls the trim function of the string.
+    public static String trim(String s) {
+        if (s == null) {
+            return null;
+        }
+
+        try {
+            return s.trim();
+        } catch (Throwable ignored) {
+            return null;
+        }
     }
 }

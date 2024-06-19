@@ -4,15 +4,20 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.InputStream;
 
+import supersocksr.ppp.android.openppp2.IPAddressX;
 import supersocksr.ppp.android.openppp2.Macro;
 import supersocksr.ppp.android.openppp2.PackageX;
+import supersocksr.ppp.android.openppp2.TextX;
 import supersocksr.ppp.android.openppp2.VPNConfiguration;
 import supersocksr.ppp.android.openppp2.VPNLinkConfiguration;
+import supersocksr.ppp.android.openppp2.X;
 
 
 public class MainActivity extends PppVpnActivity {
@@ -59,31 +64,30 @@ public class MainActivity extends PppVpnActivity {
             loadInput(server);
             loadInput(uuid);
             loadInput(tunip);
+
             static_server = findViewById(R.id.staticserver);
-            if (static_server.getText().toString().trim().isEmpty()) {
-                blankTunIp = true;
-            } else blankTunIp = false;
+            blankTunIp = X.is_empty(TextX.trim(TextX.to_string(static_server.getText())));
+
             tunip = findViewById(R.id.tunIP);
             findViewById(R.id.btn_start).setOnClickListener(v -> vpn_run());
             findViewById(R.id.btn_stop).setOnClickListener(v -> vpn_stop());
         }
     }
 
-
-    private void loadInput(TextInputEditText editText) {
+    private void loadInput(@NonNull TextInputEditText editText) {
         // get SharedPreferences object
         SharedPreferences sharedPreferences = getSharedPreferences("UserInput", MODE_PRIVATE);
         editText.setText(sharedPreferences.getString(getResources().getResourceEntryName(editText.getId()), ""));
     }
 
-    private void saveInput(TextInputEditText editText) {
+    private void saveInput(@NonNull TextInputEditText editText) {
         // get SharedPreferences object
         SharedPreferences sharedPreferences = getSharedPreferences("UserInput", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         // save value
         String key = getResources().getResourceEntryName(editText.getId());
-        editor.putString(key, editText.getText().toString());
+        editor.putString(key, TextX.trim(TextX.to_string(editText.getText())));
         editor.apply();
     }
 
@@ -92,8 +96,10 @@ public class MainActivity extends PppVpnActivity {
         try {
             InputStream is = getResources().openRawResource(R.raw.ip);
             int length = is.available();
+
             byte[] buffer = new byte[length];
             is.read(buffer);
+
             result = new String(buffer, "utf8");
         } catch (Exception e) {
             e.printStackTrace();
@@ -106,8 +112,10 @@ public class MainActivity extends PppVpnActivity {
         try {
             InputStream is = getResources().openRawResource(R.raw.domain);
             int length = is.available();
+
             byte[] buffer = new byte[length];
             is.read(buffer);
+
             result = new String(buffer, "utf8");
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,17 +123,13 @@ public class MainActivity extends PppVpnActivity {
         return result;
     }
 
-
     @Override
     protected VPNLinkConfiguration vpn_load() {
         VPNLinkConfiguration config = new VPNLinkConfiguration();
         config.SubnetAddress = "255.255.255.0";
-        String ip_addr = tunip.getText().toString().trim();
-        String[] temp;
-        String delimiter = "\\.";
-        temp = ip_addr.split(delimiter);
-        config.GatewayServer = temp[0] + "." + temp[1] + "." + temp[2] + "." + "1";
-        config.IPAddress = ip_addr;
+        config.IPAddress = TextX.trim(TextX.to_string(tunip.getText()));
+        config.GatewayServer = IPAddressX.address_calc_first_address(config.IPAddress, config.SubnetAddress);
+
         config.VirtualSubnet = true;
         config.BlockQUIC = false;
         config.StaticMode = !blankTunIp;
@@ -168,7 +172,7 @@ public class MainActivity extends PppVpnActivity {
         vpn.udp.static_.keep_alived[0] = 0;
         vpn.udp.static_.keep_alived[1] = 0;
         vpn.udp.static_.aggligator = 0;
-        vpn.udp.static_.servers.add(static_server.getText().toString().trim());
+        vpn.udp.static_.servers.add(TextX.trim(TextX.to_string(static_server.getText())));
 
         vpn.websocket.verify_peer = true;
         vpn.websocket.http.error = "Status Code: 404; Not Found";
@@ -182,7 +186,7 @@ public class MainActivity extends PppVpnActivity {
         vpn.websocket.http.response.put("Server", "Kestrel");
 
         vpn.client.guid = java.util.UUID.randomUUID().toString();
-        vpn.client.server = server.getText().toString().trim();
+        vpn.client.server = TextX.trim(TextX.to_string(server.getText()));
         vpn.client.bandwidth = 0;
         vpn.client.reconnections.timeout = Macro.PPP_TCP_CONNECT_TIMEOUT;
         vpn.client.http_proxy.bind = "127.0.0.1";
