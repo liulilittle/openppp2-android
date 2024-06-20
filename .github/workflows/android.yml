@@ -1,128 +1,93 @@
-# Copyright  : Copyright (C) 2017 ~ 2035 SupersocksR ORG. All rights reserved.
-# Description: PPP PRIVATE NETWORK™ 2 ANDROID BUILD SCRIPT CROSS.(X) 1.0.0 VERSION.
-# Author     : Kyou.
-# Date-Time  : 2024/03/01
+name: Generated APK AAB (Upload - Create Artifact To Github Action)
 
-name: PPP PRIVATE NETWORK™ 2 ANDROID BUILD SCRIPT CROSS.(X) 1.0.0 VERSION.
+env:
+  # The name of the main module repository
+  main_project_module: app
+
+  # The name of the Play Store
+  playstore_name: Frogobox ID
+
 on:
+
   push:
     branches:
-      - main
-  pull_request:
-    branches:
-      - main
+      - 'release/**'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest] # ubuntu-22.04, ubuntu-20.04, ubuntu-18.04
-        arch: [amd64] # ${{ runner.arch }}
-        platform: 
-          - android/arm64-v8a
-          - android/armeabi-v7a
-          - android/x86
-          - android/x86_64
 
-    runs-on: ${{ matrix.os }}
-    env:
-      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout openppp2
-      run: git clone https://github.com/liulilittle/openppp2.git openppp2 # uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-    - name: Checkout ndk
-      run: |
-        mkdir -p ndk
-        cd ndk
-        wget https://dl.google.com/android/repository/android-ndk-r20b-linux-x86_64.zip
-        unzip android-ndk-r20b-linux-x86_64.zip && rm -rf android-ndk-r20b-linux-x86_64.zip
-        mv * abi
+      - name: Update MainActivity.java
+        run: | 
+         sed -i 's/192\.168\.0\.24:20000/'"$IP_ADDRESS"':'"$PORT"'/g' app/src/main/java/supersocksr/ppp/android/MainActivity.java
+        env:
+         IP_ADDRESS: ${{ secrets.IP_ADDRESS }}
+         PORT: ${{ secrets.PORT }}
 
-    - name: Checkout boost
-      run: |
-        mkdir -p ndk
-        cd ndk
-        git clone https://github.com/liulilittle/boost-1.74-for-android-r20b-fpic.git boost
+      # Set Current Date As Env Variable
+      - name: Set current date as env variable
+        run: echo "date_today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
 
-    - name: Checkout openssl
-      run: |
-        mkdir -p ndk
-        cd ndk
-        git clone https://github.com/liulilittle/openssl-1.1.1i-for-android-r20b.git openssl
+      # Set Repository Name As Env Variable
+      - name: Set repository name as env variable
+        run: echo "repository_name=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
 
-    - name: Get number of cpus
-      run: |
-        echo ::set-env name=ncpu::$(nproc)
+      - name: Set Up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu' # See 'Supported distributions' for available options
+          java-version: '17'
+          cache: 'gradle'
 
-    - name: Set THIRD_PARTY_LIBRARY_DIR environment variables
-      run: |
-        echo ::set-env name=NDK_ROOT::${GITHUB_WORKSPACE}/ndk/abi
-        echo ::set-env name=THIRD_PARTY_LIBRARY_DIR::${GITHUB_WORKSPACE}/ndk
+      - name: Change wrapper permissions
+        run: chmod +x ./gradlew
 
-    - name: Checkout abi
-      run: |
-        case ${{ matrix.platform }} in
-          android/arm64-v8a)
-            echo ::set-env name=ANDROID_ABI::arm64-v8a
-            echo ::set-env name=PPP_ANDROID_ABI::aarch64
-            ;;
-          android/armeabi-v7a)
-            echo ::set-env name=ANDROID_ABI::armeabi-v7a
-            echo ::set-env name=PPP_ANDROID_ABI::armv7a
-            ;;
-          android/x86)
-            echo ::set-env name=ANDROID_ABI::x86
-            echo ::set-env name=PPP_ANDROID_ABI::x86
-            ;;
-          android/x86_64)
-            echo ::set-env name=ANDROID_ABI::x86_64
-            echo ::set-env name=PPP_ANDROID_ABI::x64
-            ;;
-          *)
-            echo "Unsupported platform: ${{ matrix.platform }}"
-            exit 1
-            ;;
-        esac
+      # Run Tests Build
+      - name: Run gradle tests
+        run: ./gradlew test
 
-    - name: Print environment variables
-      run: echo "ncpu:$ncpu, NDK_ROOT:$NDK_ROOT, ANDROID_ABI:$ANDROID_ABI, PPP_ANDROID_ABI:$PPP_ANDROID_ABI, THIRD_PARTY_LIBRARY_DIR:$THIRD_PARTY_LIBRARY_DIR"
+      # Run Build Project
+      - name: Build gradle project
+        run: ./gradlew build
 
-    - name: Replace THIRD_PARTY_LIBRARY_DIR in CMakeFiles.txt.
-      run: |
-        cd openppp2/android
-        sed -i 's/SET(THIRD_PARTY_LIBRARY_DIR \/root\/android)/SET(THIRD_PARTY_LIBRARY_DIR $ENV{THIRD_PARTY_LIBRARY_DIR})/' CMakeLists.txt
+      # Create APK Debug
+      - name: Build apk debug project (APK) - ${{ env.main_project_module }} module
+        run: ./gradlew assembleDebug
 
-    - name: Build openppp2
-      run: |
-        PLATFORM=${{ matrix.platform }}
-        PLATFORM=${PLATFORM//\//-}
+      # Create APK Release
+      - name: Build apk release project (APK) - ${{ env.main_project_module }} module
+        run: ./gradlew assemble
 
-        cd openppp2/android
-        mkdir -p build
-        cd build
+      # Create Bundle AAB Release
+      # Noted for main module build [main_project_module]:bundleRelease
+      - name: Build app bundle release (AAB) - ${{ env.main_project_module }} module
+        run: ./gradlew ${{ env.main_project_module }}:bundleRelease
 
-        cmake .. \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_TOOLCHAIN_FILE=$NDK_ROOT/build/cmake/android.toolchain.cmake \
-          -DCMAKE_SYSTEM_NAME=Android \
-          -DANDROID_ABI=$ANDROID_ABI \
-          -DANDROID_NATIVE_API_LEVEL=21 \
-          -DANDROID_STL=c++_static \
-          $OTHER_ARGS
-        make -j $ncpu
-      
-        ARTIFACT_NAME=openppp2-$PLATFORM.zip
-        echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
+      # Upload Artifact Build
+      # Noted For Output [main_project_module]/build/outputs/apk/debug/
+      - name: Upload APK Debug - ${{ env.repository_name }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - APK(s) debug generated
+          path: ${{ env.main_project_module }}/build/outputs/apk/debug/
 
-        cd ../../bin/android/$ANDROID_ABI
-        zip -r $ARTIFACT_NAME libopenppp2.so
-        mv $ARTIFACT_NAME ../../
+      # Noted For Output [main_project_module]/build/outputs/apk/release/
+      - name: Upload APK Release - ${{ env.repository_name }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - APK(s) release generated
+          path: ${{ env.main_project_module }}/build/outputs/apk/release/
 
-    - name: Archive openppp2
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ env.ARTIFACT_NAME }}
-        path: openppp2/bin/${{ env.ARTIFACT_NAME }}
+      # Noted For Output [main_project_module]/build/outputs/bundle/release/
+      - name: Upload AAB (App Bundle) Release - ${{ env.repository_name }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - App bundle(s) AAB release generated
+          path: ${{ env.main_project_module }}/build/outputs/bundle/release/
