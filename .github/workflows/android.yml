@@ -5,31 +5,31 @@ env:
   main_project_module: app
 
   # The name of the Play Store
-  playstore_name: Frogobox ID
+  playstore_name: openppp2
 
 on:
-
   push:
     branches:
-      - 'release/**'
-
+      - "main"
+  pull_request:
+    branches:
+      - "main"
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Update MainActivity.java
-        run: | 
-         sed -i 's/192\.168\.0\.24:20000/'"$IP_ADDRESS"':'"$PORT"'/g' app/src/main/java/supersocksr/ppp/android/MainActivity.java
+        run: |
+          sed -i 's/192\.168\.0\.24:20000/'"$IP_ADDRESS"':'"$PORT"'/g' app/src/main/java/supersocksr/ppp/android/MainActivity.java
         env:
-         IP_ADDRESS: ${{ secrets.IP_ADDRESS }}
-         PORT: ${{ secrets.PORT }}
+          IP_ADDRESS: ${{ secrets.IP_ADDRESS }}
+          PORT: ${{ secrets.PORT }}
 
       # Set Current Date As Env Variable
       - name: Set current date as env variable
@@ -40,11 +40,11 @@ jobs:
         run: echo "repository_name=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
 
       - name: Set Up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
-          distribution: 'zulu' # See 'Supported distributions' for available options
-          java-version: '17'
-          cache: 'gradle'
+          distribution: "zulu" # See 'Supported distributions' for available options
+          java-version: "22"
+          cache: "gradle"
 
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
@@ -73,21 +73,21 @@ jobs:
       # Upload Artifact Build
       # Noted For Output [main_project_module]/build/outputs/apk/debug/
       - name: Upload APK Debug - ${{ env.repository_name }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - APK(s) debug generated
           path: ${{ env.main_project_module }}/build/outputs/apk/debug/
 
       # Noted For Output [main_project_module]/build/outputs/apk/release/
       - name: Upload APK Release - ${{ env.repository_name }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - APK(s) release generated
           path: ${{ env.main_project_module }}/build/outputs/apk/release/
 
       # Noted For Output [main_project_module]/build/outputs/bundle/release/
       - name: Upload AAB (App Bundle) Release - ${{ env.repository_name }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - App bundle(s) AAB release generated
           path: ${{ env.main_project_module }}/build/outputs/bundle/release/
