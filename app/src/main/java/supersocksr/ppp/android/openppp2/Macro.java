@@ -16,6 +16,7 @@ public final class Macro {
     public static final int PPP_UDP_TIMER_INTERVAL = 10;
     public static final int PPP_DEFAULT_DNS_TIMEOUT = 4;
     public static final int PPP_DEFAULT_HTTP_PROXY_PORT = 3128; // android: 3128, no 8080.
+    public static final int PPP_DEFAULT_SOCKS_PROXY_PORT = 1080;
     public static final int PPP_NOTIFICATION_CHANNEL_ID = 1;
 
     public static final int RUN_OK = 0;

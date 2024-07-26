@@ -112,6 +112,8 @@ public final class libopenppp2 {
 
     public native String get_http_proxy_address_endpoint();
 
+    public native String get_socks_proxy_address_endpoint();
+
     public native boolean if_subnet(String ip1_, String ip2_, String mask_);
 
     public native int netmask_to_prefix(byte[] address_);

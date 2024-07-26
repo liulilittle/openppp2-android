@@ -86,6 +86,10 @@ public final class VPNConfiguration {
         config.client.reconnections.timeout = Macro.PPP_TCP_CONNECT_TIMEOUT;
         config.client.http_proxy.bind = "127.0.0.1";
         config.client.http_proxy.port = Macro.PPP_DEFAULT_HTTP_PROXY_PORT;
+        config.client.socks_proxy.username = "";
+        config.client.socks_proxy.password = "";
+        config.client.socks_proxy.bind = "127.0.0.1";
+        config.client.socks_proxy.port = Macro.PPP_DEFAULT_SOCKS_PROXY_PORT;
     }
 
     public static class KeyConfiguration {
@@ -239,6 +243,10 @@ public final class VPNConfiguration {
         @Expose(serialize = true, deserialize = true)
         public final HttpProxyConfiguration http_proxy = new HttpProxyConfiguration();
 
+        @SerializedName("socks-proxy")
+        @Expose(serialize = true, deserialize = true)
+        public final SocksProxyConfiguration socks_proxy = new SocksProxyConfiguration();
+
         @SerializedName("guid")
         @Expose(serialize = true, deserialize = true)
         public String guid;
@@ -263,6 +271,16 @@ public final class VPNConfiguration {
             @SerializedName("port")
             @Expose(serialize = true, deserialize = true)
             public int port;
+        }
+
+        public static class SocksProxyConfiguration extends HttpProxyConfiguration {
+            @SerializedName("username")
+            @Expose(serialize = true, deserialize = true)
+            public String username;
+
+            @SerializedName("password")
+            @Expose(serialize = true, deserialize = true)
+            public String password;
         }
     }
 }

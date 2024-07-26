@@ -117,9 +117,17 @@ public final class VPN {
         return vpn_set_bypass_ip_list(bypass_ip_list);
     }
 
+    // Gets the local http-proxy server address.
     @Nullable
     public static InetSocketAddress vpn_get_http_proxy_address_endpoint() {
         String address_string = libopenppp2.c.get_http_proxy_address_endpoint();
+        return IPAddressX.address_string_to_inet_socket_address(address_string);
+    }
+
+    // Gets the local socks-proxy server address.
+    @Nullable
+    public static InetSocketAddress vpn_get_socks_proxy_address_endpoint() {
+        String address_string = libopenppp2.c.get_socks_proxy_address_endpoint();
         return IPAddressX.address_string_to_inet_socket_address(address_string);
     }
 

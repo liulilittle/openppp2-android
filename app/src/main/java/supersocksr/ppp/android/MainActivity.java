@@ -215,8 +215,12 @@ public class MainActivity extends PppVpnActivity {
         vpn.client.server = TextX.trim(TextX.to_string(server.getText()));
         vpn.client.bandwidth = 0;
         vpn.client.reconnections.timeout = Macro.PPP_TCP_CONNECT_TIMEOUT;
+
         vpn.client.http_proxy.bind = "127.0.0.1";
         vpn.client.http_proxy.port = Macro.PPP_DEFAULT_HTTP_PROXY_PORT;
+
+        vpn.client.socks_proxy.bind = "127.0.0.1";
+        vpn.client.socks_proxy.port = Macro.PPP_DEFAULT_SOCKS_PROXY_PORT;
 
         return config;
     }
