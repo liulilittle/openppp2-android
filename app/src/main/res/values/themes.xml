@@ -1,9 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base application theme. -->
-    <style name="Base.Theme.openppp2" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-    </style>
-
-    <style name="Theme.openppp2" parent="Base.Theme.openppp2" />
+    <style name="Theme.Openppp2" parent="Theme.MaterialComponents.DayNight.NoActionBar" />
 </resources>

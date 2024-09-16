@@ -38,7 +38,7 @@
         android:roundIcon="@drawable/ic_launcher"
         android:sharedUserId="android.uid.system"
         android:supportsRtl="true"
-        android:theme="@style/Theme.openppp2"
+        android:theme="@style/Theme.Openppp2"
         android:usesCleartextTraffic="true"
         tools:ignore="AllowBackup,Deprecated,UnusedAttribute">
 

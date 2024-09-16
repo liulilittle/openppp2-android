@@ -1,0 +1,45 @@
+[versions]
+activityCompose = "1.9.2"
+androidProcesses = "1.1.1"
+annotations = "23.0.0"
+composeBom = "2024.09.01"
+coreKtx = "1.13.1"
+espressoCore = "3.6.1"
+gson = "2.10.1"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+kotlin = "2.0.20"
+kotlinapp = "8.6.0"
+kotlinxSerializationJson = "1.7.1"
+material = "1.12.0"
+navigationCompose = "2.8.0"
+navigationRuntimeKtx = "2.8.0"
+uiTiles = "2.4.0"
+uiTilesExtended = "2.4.0"
+
+[libraries]
+android-processes = { module = "com.jaredrummler:android-processes", version.ref = "androidProcesses" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
+androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junitVersion" }
+androidx-material3 = { module = "androidx.compose.material3:material3" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-navigation-runtime-ktx = { module = "androidx.navigation:navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
+androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+annotations = { module = "org.jetbrains:annotations", version.ref = "annotations" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+junit = { module = "junit:junit", version.ref = "junit" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
+ui-tiles = { module = "com.github.alorma.compose-settings:ui-tiles", version.ref = "uiTiles" }
+ui-tiles-extended = { module = "com.github.alorma.compose-settings:ui-tiles-extended", version.ref = "uiTilesExtended" }
+
+[plugins]
+kotlin-app = { id = "com.android.application", version.ref = "kotlinapp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serde = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
