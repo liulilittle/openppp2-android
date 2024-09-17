@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.animateDpAsState
@@ -64,8 +66,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
+import supersocksr.ppp.android.c.libopenppp2.LIBOPENPPP2_LINK_STATE_CLIENT_UNINITIALIZED
 import supersocksr.ppp.android.openppp2.IPAddressX
 import supersocksr.ppp.android.openppp2.Macro
 import supersocksr.ppp.android.openppp2.VPNLinkConfiguration
@@ -74,7 +83,11 @@ import supersocksr.ppp.android.ui.theme.Pink500
 import supersocksr.ppp.android.utils.IpWithPort
 import supersocksr.ppp.android.utils.RawReader
 import supersocksr.ppp.android.utils.UserConfig
+import java.net.ConnectException
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.UUID
+
 
 const val TAG = "MainActivity"
 const val ALL_CONFIGS_KEY = "all_configs"
@@ -82,11 +95,15 @@ const val ALL_CONFIGS_KEY = "all_configs"
 class MainActivity : PppVpnActivity() {
   val userConfigListSerializer = ListSerializer(UserConfig.serializer())
   lateinit var configPreferences: SharedPreferences
+  lateinit var settingsPreferences: SharedPreferences
+  lateinit var settings: Settings
   val selectedUserConfig: MutableState<UserConfig?> = mutableStateOf(null)
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     configPreferences = getSharedPreferences("config_list", Context.MODE_PRIVATE)
+    settingsPreferences = getSharedPreferences("settings", Context.MODE_PRIVATE)
+    settings = Settings(this, settingsPreferences)
     setContent {
       Openppp2Theme { App() }
     }
@@ -203,6 +220,19 @@ class MainActivity : PppVpnActivity() {
     return config
   }
 
+  // FIXME: this function actually cannot hide ime.
+  fun hideIME(view: View? = null) {
+    val focusedView = currentFocus
+    if (focusedView !is TextInputEditText) {
+      return
+    }
+    focusedView.clearFocus()
+    // hide keyboard
+    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.hideSoftInputFromWindow((view ?: focusedView).windowToken, 0)
+  }
+
+  // 全应用，底部导航栏
   @Composable
   fun App() {
     val navController = rememberNavController()
@@ -222,7 +252,7 @@ class MainActivity : PppVpnActivity() {
         Modifier.padding(innerPadding)
       ) {
         composable("Home") { ConfigSelectionScreen(navController) }
-        composable("Settings") { SettingsScreen() }
+        composable("Settings") { settings.SettingsScreen() }
       }
     }
   }
@@ -277,14 +307,23 @@ class MainActivity : PppVpnActivity() {
     val originalAllConfig = configPreferences.getString(ALL_CONFIGS_KEY, "[]")!!
       .let { Json.decodeFromString(userConfigListSerializer, it) }.toMutableList()
     val configListState = remember { mutableStateListOf(*originalAllConfig.toTypedArray()) }
+    var vpnRunning by remember { mutableStateOf(vpn_state() != LIBOPENPPP2_LINK_STATE_CLIENT_UNINITIALIZED) }
 
     val itemModifier = Modifier
       .aspectRatio(1.85f, true)
       .padding(20.dp)
 
+    // functions
     val select = { index: Int? ->
       selectedConfig = index
       selectedUserConfig.value = index?.let { configListState[it] }
+    }
+    val saveConfig = {
+      configPreferences.edit()
+        .putString(
+          ALL_CONFIGS_KEY,
+          Json.encodeToString(userConfigListSerializer, configListState)
+        ).apply()
     }
 
     Column {
@@ -346,6 +385,7 @@ class MainActivity : PppVpnActivity() {
               .clickable {
                 Log.i(TAG, "Add a new config")
                 configListState.add(UserConfig())
+                saveConfig()
               },
             contentAlignment = Alignment.Center
           ) {
@@ -360,20 +400,36 @@ class MainActivity : PppVpnActivity() {
           .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
       ) {
+        var testText = remember { mutableStateOf("Test") }
+
         Button(onClick = {
           if (selectedConfig == null) {
             Toast.makeText(this@MainActivity, "Please select a config first", Toast.LENGTH_SHORT)
               .show()
+            return@Button
           }
           vpn_run()
+          vpnRunning = true
+          testText.value = "Test"
         }) {
-          Text("Start")
+          Text(getString(R.string.vpn_start))
         }
-        Button(onClick = { }) {
-          Text("Test")
+        if (vpnRunning) {
+          Button(onClick = {
+            if (testText.value != "Testing...") {
+              testConnection(testText)
+            }
+            testText.value = "Testing..."
+          }) {
+            Text(testText.value)
+          }
         }
-        Button(onClick = { vpn_stop() }) {
-          Text("Stop")
+
+        Button(onClick = {
+          vpn_stop()
+          vpnRunning = false
+        }) {
+          Text(getString(R.string.vpn_stop))
         }
       }
 
@@ -383,20 +439,12 @@ class MainActivity : PppVpnActivity() {
           onDismiss = { isEditing = false },
           onSave = { newConfigValue ->
             configListState[selectedConfig!!] = newConfigValue
-            configPreferences.edit()
-              .putString(
-                ALL_CONFIGS_KEY,
-                Json.encodeToString(userConfigListSerializer, configListState)
-              ).apply()
+            saveConfig()
             isEditing = false
           },
           onDelete = {
             configListState.removeAt(selectedConfig!!)
-            configPreferences.edit()
-              .putString(
-                ALL_CONFIGS_KEY,
-                Json.encodeToString(userConfigListSerializer, configListState)
-              ).apply()
+            saveConfig()
             isEditing = false
             select(null)
           }
@@ -425,11 +473,13 @@ class MainActivity : PppVpnActivity() {
     var static_server by remember { mutableStateOf(TextFieldValue(config.static_server)) }
     var tun_address by remember { mutableStateOf(TextFieldValue(config.tun_address)) }
 
-    val focusManager = LocalFocusManager.current
     val lazyListState = rememberLazyListState()
-    val keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
-    val keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done)
-    val textFieldModifier = Modifier
+    val focusManager = LocalFocusManager.current
+    val dialogKeyboardActions = KeyboardActions(onDone = {
+      hideIME()
+    })
+    val dialogKeyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done)
+    val dialogTextFieldModifier = Modifier
       .fillMaxWidth()
       .padding(8.dp)
 
@@ -447,61 +497,62 @@ class MainActivity : PppVpnActivity() {
           DeleteButton { onDelete() }
         }
       },
+      modifier = Modifier.clickable(interactionSource = null, indication = null) { hideIME() },
       text = {
         LazyColumn(state = lazyListState, contentPadding = PaddingValues(4.dp)) {
           item {
             OutlinedTextField(
-              modifier = textFieldModifier,
+              modifier = dialogTextFieldModifier,
               value = name,
               onValueChange = { name = it },
               label = { Text("Config Name") },
-              keyboardOptions = keyboardOptions,
-              keyboardActions = keyboardActions
+              keyboardOptions = dialogKeyboardOptions,
+              keyboardActions = KeyboardActions(onDone = { hideIME() })
             )
           }
           item {
             OutlinedTextField(
-              modifier = textFieldModifier,
+              modifier = dialogTextFieldModifier,
               value = server,
               onValueChange = { server = it },
               label = { Text("Server IP and Port") },
               leadingIcon = {
                 Text("ppp://")
               },
-              keyboardOptions = keyboardOptions,
-              keyboardActions = keyboardActions
+              keyboardOptions = dialogKeyboardOptions,
+              keyboardActions = dialogKeyboardActions
             )
           }
           item {
             OutlinedTextField(
-              modifier = textFieldModifier,
+              modifier = dialogTextFieldModifier,
               value = guid,
               readOnly = true,
               onValueChange = { guid = it },
               label = { Text("GUID") },
               placeholder = { Text("Random") },
-              keyboardOptions = keyboardOptions,
-              keyboardActions = keyboardActions
+              keyboardOptions = dialogKeyboardOptions,
+              keyboardActions = dialogKeyboardActions
             )
           }
           item {
             OutlinedTextField(
-              modifier = textFieldModifier,
+              modifier = dialogTextFieldModifier,
               value = static_server,
               onValueChange = { static_server = it },
               label = { Text("Static server IP and Port") },
-              keyboardOptions = keyboardOptions,
-              keyboardActions = keyboardActions
+              keyboardOptions = dialogKeyboardOptions,
+              keyboardActions = dialogKeyboardActions
             )
           }
           item {
             OutlinedTextField(
-              modifier = textFieldModifier,
+              modifier = dialogTextFieldModifier,
               value = tun_address,
               onValueChange = { tun_address = it },
               label = { Text("Tun Address") },
-              keyboardOptions = keyboardOptions,
-              keyboardActions = keyboardActions
+              keyboardOptions = dialogKeyboardOptions,
+              keyboardActions = dialogKeyboardActions
             )
           }
         }
@@ -526,25 +577,64 @@ class MainActivity : PppVpnActivity() {
             }
           }
         ) {
-          Text("Save")
+          Text(getString(R.string.save))
         }
       },
       dismissButton = {
         Button(
           onClick = onDismiss
         ) {
-          Text("Cancel")
+          Text(getString(R.string.cancel))
         }
       }
     )
   }
-}
 
-// 设置页面
-@Composable
-fun SettingsScreen() {
-  // Your Settings screen content goes here
-  Text("Settings Screen")
+  // 测试连接
+  @OptIn(DelicateCoroutinesApi::class)
+  fun testConnection(state: MutableState<String>) {
+    // 启动异步任务
+    GlobalScope.launch(Dispatchers.IO) {
+      val url = URL(settingsPreferences.getString(TEST_LINK_KEY, TEST_LINK_DEFAULT)!!)
+      val connection = url.openConnection() as HttpURLConnection
+      val beginTime = System.currentTimeMillis()
+
+      try {
+        // 设置连接超时时间
+        val timeout = settingsPreferences.getInt(TIMEOUT_KEY, TIMEOUT_DEFAULT)
+        connection.connectTimeout = timeout
+        connection.readTimeout = timeout
+
+        // 发起请求并读取响应
+        connection.requestMethod = "GET"
+        val responseCode = connection.responseCode
+        if (responseCode == HttpURLConnection.HTTP_NO_CONTENT || responseCode == HttpURLConnection.HTTP_OK) {
+          withContext(Dispatchers.Main) {
+            state.value = (System.currentTimeMillis() - beginTime).toString() + "ms"
+          }
+        } else {
+          Log.d(TAG, "Response code: $responseCode")
+          withContext(Dispatchers.Main) {
+            state.value = "-1 ms"
+          }
+        }
+      } catch (e: ConnectException) {
+        val cause: String = e.cause.toString()
+        Log.w(TAG, "$cause: ${e.message}")
+        withContext(Dispatchers.Main) {
+          state.value = cause
+        }
+      } catch (e: Exception) {
+        Log.w(TAG, "${e.cause}: ${e.message}")
+        Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
+        withContext(Dispatchers.Main) {
+          state.value = "Error"
+        }
+      } finally {
+        connection.disconnect()
+      }
+    }
+  }
 }
 
 

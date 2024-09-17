@@ -81,6 +81,8 @@ dependencies {
     implementation libs.ui.tiles.extended
     // Serialization
     implementation libs.kotlinx.serialization.json
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.core)
 
     //noinspection GradleDependency
     implementation libs.gson
