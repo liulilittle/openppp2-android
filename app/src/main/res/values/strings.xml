@@ -2,4 +2,11 @@
     <string name="app_name">openppp2</string>
     <string name="vpn_start">Start</string>
     <string name="vpn_stop">Stop</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="test_options">Test Options</string>
+    <string name="show_logs">Show Logs</string>
+    <string name="test_options_subtitle">Test link and timeout</string>
+    <string name="test_link">Test Link</string>
+    <string name="test_timeout">Timeout (ms)</string>
 </resources>

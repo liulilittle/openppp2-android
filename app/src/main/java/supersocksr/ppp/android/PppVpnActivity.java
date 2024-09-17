@@ -109,7 +109,7 @@ public abstract class PppVpnActivity extends AppCompatActivity {
             return Macro.RUN_VPN_LINK_CONFIGURATION_IS_NULL;
         }
 
-        VPNLinkConfiguration config = vpn_load();
+        @Nullable VPNLinkConfiguration config = vpn_load();
         if (config == null) {
             return Macro.RUN_VPN_LINK_CONFIGURATION_IS_NULL;
         }
@@ -118,7 +118,7 @@ public abstract class PppVpnActivity extends AppCompatActivity {
     }
 
     // Load a reference to the VPN link configurations.
-    protected abstract VPNLinkConfiguration vpn_load();
+    protected abstract @Nullable VPNLinkConfiguration vpn_load();
 
     // Get the processor of the current remote VPN service.
     public Handler handler() {
