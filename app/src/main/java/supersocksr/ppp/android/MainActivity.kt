@@ -399,7 +399,8 @@ class MainActivity : PppVpnActivity() {
           .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
       ) {
-        var testText = remember { mutableStateOf("Test") }
+        val testText = remember { mutableStateOf("Test") }
+        var startText by remember { mutableStateOf(getString(R.string.vpn_start)) }
 
         Button(
           onClick = {
@@ -411,10 +412,11 @@ class MainActivity : PppVpnActivity() {
             vpn_run()
             vpnRunning = true
             testText.value = "Test"
+            selectedUserConfig.value?.name?.let { startText = it }
           },
           enabled = vpnRunning.not()
         ) {
-          Text(getString(R.string.vpn_start))
+          Text(startText)
         }
         if (vpnRunning) {
           Button(onClick = {
