@@ -24,13 +24,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Update MainActivity.java
-        run: |
-          sed -i 's/192\.168\.0\.24:20000/'"$IP_ADDRESS"':'"$PORT"'/g' app/src/main/java/supersocksr/ppp/android/MainActivity.java
-        env:
-          IP_ADDRESS: ${{ secrets.IP_ADDRESS }}
-          PORT: ${{ secrets.PORT }}
-
       # Set Current Date As Env Variable
       - name: Set current date as env variable
         run: echo "date_today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
