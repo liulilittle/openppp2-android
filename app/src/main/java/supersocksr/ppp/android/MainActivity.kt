@@ -56,7 +56,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
@@ -402,16 +401,19 @@ class MainActivity : PppVpnActivity() {
       ) {
         var testText = remember { mutableStateOf("Test") }
 
-        Button(onClick = {
-          if (selectedConfig == null) {
-            Toast.makeText(this@MainActivity, "Please select a config first", Toast.LENGTH_SHORT)
-              .show()
-            return@Button
-          }
-          vpn_run()
-          vpnRunning = true
-          testText.value = "Test"
-        }) {
+        Button(
+          onClick = {
+            if (selectedConfig == null) {
+              Toast.makeText(this@MainActivity, "Please select a config first", Toast.LENGTH_SHORT)
+                .show()
+              return@Button
+            }
+            vpn_run()
+            vpnRunning = true
+            testText.value = "Test"
+          },
+          enabled = vpnRunning.not()
+        ) {
           Text(getString(R.string.vpn_start))
         }
         if (vpnRunning) {
@@ -474,7 +476,6 @@ class MainActivity : PppVpnActivity() {
     var tun_address by remember { mutableStateOf(TextFieldValue(config.tun_address)) }
 
     val lazyListState = rememberLazyListState()
-    val focusManager = LocalFocusManager.current
     val dialogKeyboardActions = KeyboardActions(onDone = {
       hideIME()
     })
@@ -626,9 +627,9 @@ class MainActivity : PppVpnActivity() {
         }
       } catch (e: Exception) {
         Log.w(TAG, "${e.cause}: ${e.message}")
-        Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
         withContext(Dispatchers.Main) {
           state.value = "Error"
+          Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
         }
       } finally {
         connection.disconnect()

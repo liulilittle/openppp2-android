@@ -2,20 +2,27 @@ package supersocksr.ppp.android
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +35,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.alorma.compose.settings.ui.SettingsGroup
 import com.alorma.compose.settings.ui.SettingsMenuLink
 
@@ -46,6 +54,7 @@ class Settings(val context: Context, val preferences: SharedPreferences) {
     val context = LocalContext.current
     val state = rememberLazyListState()
     var testOptionsnDialogOpened by remember { mutableStateOf(false) }
+    var LogDialogOpened by remember { mutableStateOf(false) }
 
     LazyColumn(
       modifier = Modifier
@@ -66,9 +75,18 @@ class Settings(val context: Context, val preferences: SharedPreferences) {
           ) {
             testOptionsnDialogOpened = true
           }
+
+          SettingsMenuLink(
+            title = { Text(context.getString(R.string.show_logs)) },
+          ) {
+            LogDialogOpened = true
+          }
         }
         if (testOptionsnDialogOpened) {
           TestOptionsDialog { testOptionsnDialogOpened = false }
+        }
+        if (LogDialogOpened) {
+          LogDialog { LogDialogOpened = false }
         }
       }
     }
@@ -160,5 +178,37 @@ class Settings(val context: Context, val preferences: SharedPreferences) {
         }
       }
     )
+  }
+
+  @Composable
+  fun LogDialog(onDismiss: () -> Unit) {
+    var logLines by remember { mutableStateOf("") }
+    val scrollState = rememberScrollState()
+
+    Dialog(onDismissRequest = { onDismiss() }) {
+      Column(
+        modifier = Modifier
+          .padding(8.dp)
+          .fillMaxSize()
+          .verticalScroll(scrollState)
+      ) {
+        SelectionContainer { Text(text = logLines) }
+
+        LaunchedEffect(Unit) {
+          try {
+            val process = Runtime.getRuntime().exec("logcat -d *:E")
+            val bufferedReader = process.inputStream.bufferedReader()
+            while (true) {
+              val line = bufferedReader.readLine() ?: break
+              logLines += "$line\n"
+              scrollState.scrollTo(scrollState.maxValue)
+            }
+            bufferedReader.close()
+          } catch (e: Exception) {
+            Log.e("LogActivity", "Error reading logs", e)
+          }
+        }
+      }
+    }
   }
 }
