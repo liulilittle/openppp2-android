@@ -68,7 +68,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.android.material.textfield.TextInputEditText
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -344,6 +343,7 @@ class MainActivity : PppVpnActivity() {
         ).apply()
     }
 
+    // 主屏 UI
     Column {
       LazyVerticalGrid(
         columns = GridCells.Adaptive(120.dp),
@@ -422,6 +422,7 @@ class MainActivity : PppVpnActivity() {
         val testText = remember { mutableStateOf("Test") }
         var startText by remember { mutableStateOf(getString(R.string.vpn_start)) }
 
+        // 开始按钮
         Button(
           onClick = {
             if (selectedConfig == null) {
@@ -453,9 +454,11 @@ class MainActivity : PppVpnActivity() {
           }
         }
 
+        // 停止按钮
         Button(onClick = {
           vpn_stop()
           vpnRunning = false
+          startText = getString(R.string.vpn_start)
         }) {
           Text(getString(R.string.vpn_stop))
         }
@@ -553,9 +556,6 @@ class MainActivity : PppVpnActivity() {
               value = server,
               onValueChange = { server = it },
               label = { Text(getString(R.string.config_server)) },
-//              leadingIcon = {
-//                Text("ppp://")
-//              },
               keyboardOptions = dialogKeyboardOptions,
               keyboardActions = dialogKeyboardActions
             )
@@ -630,7 +630,6 @@ class MainActivity : PppVpnActivity() {
   }
 
   // 测试连接
-  @OptIn(DelicateCoroutinesApi::class)
   fun testConnection(state: MutableState<String>) {
     Log.i(TAG, "testConnection starting..")
     lifecycleScope.launch(Dispatchers.IO) {
