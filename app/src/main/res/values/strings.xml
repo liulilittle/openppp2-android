@@ -4,9 +4,19 @@
     <string name="vpn_stop">Stop</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_settings">Settings</string>
     <string name="test_options">Test Options</string>
     <string name="show_logs">Show Logs</string>
     <string name="test_options_subtitle">Test link and timeout</string>
     <string name="test_link">Test Link</string>
     <string name="test_timeout">Timeout (ms)</string>
+    <string name="config_title">Edit Configuration</string>
+    <string name="config_name">Config Name</string>
+    <string name="config_server">Server Address</string>
+    <string name="config_guid">GUID</string>
+    <string name="config_static">Static Server Address</string>
+    <string name="config_tun">Tun Address</string>
+    <string name="warn_deserialize">Deserialization failed, clear all configs.</string>
+    <string name="warn_config_not_select">Please select a config first.</string>
 </resources>

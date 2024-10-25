@@ -59,6 +59,10 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    testOptions {
+        unitTests.includeAndroidResources = true
+    }
 }
 
 dependencies {
@@ -66,6 +70,7 @@ dependencies {
     // AndroidX Compose
     implementation libs.androidx.core.ktx
     implementation platform(libs.androidx.compose.bom)
+    testImplementation libs.junit.jupiter
     androidTestImplementation platform(libs.androidx.compose.bom)
     implementation libs.androidx.material3
     implementation libs.material
@@ -83,6 +88,10 @@ dependencies {
     implementation libs.kotlinx.serialization.json
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)
+
+    // OkHttp
+    implementation(platform(libs.okhttp.bom))
+    implementation(libs.okhttp)
 
     //noinspection GradleDependency
     implementation libs.gson

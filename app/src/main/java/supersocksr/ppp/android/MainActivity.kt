@@ -1,5 +1,6 @@
 package supersocksr.ppp.android
 
+import Address
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -61,31 +62,33 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.android.material.textfield.TextInputEditText
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import supersocksr.ppp.android.c.libopenppp2.LIBOPENPPP2_LINK_STATE_CLIENT_UNINITIALIZED
 import supersocksr.ppp.android.openppp2.IPAddressX
 import supersocksr.ppp.android.openppp2.Macro
 import supersocksr.ppp.android.openppp2.VPNLinkConfiguration
 import supersocksr.ppp.android.ui.theme.Openppp2Theme
 import supersocksr.ppp.android.ui.theme.Pink500
-import supersocksr.ppp.android.utils.IpWithPort
 import supersocksr.ppp.android.utils.RawReader
 import supersocksr.ppp.android.utils.UserConfig
 import java.net.ConnectException
-import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
 import java.net.URL
+import java.net.UnknownHostException
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 
 const val TAG = "MainActivity"
@@ -112,17 +115,17 @@ class MainActivity : PppVpnActivity() {
     if (selectedUserConfig.value == null) {
       return null
     }
-    Log.i(TAG, "load ${selectedUserConfig.value!!}")
+    Log.i(TAG, "running using config: ${selectedUserConfig.value!!}")
     val rawReader = RawReader(resources)
     val config = VPNLinkConfiguration().apply {
       SubnetAddress = "255.255.255.0"
-      IPAddress = selectedUserConfig.value!!.tun_address
+      IPAddress = selectedUserConfig.value!!.tun_address.toString()
       Log.d(TAG, "IPAddress: $IPAddress")
       GatewayServer = IPAddressX.address_calc_first_address(IPAddress, SubnetAddress)
 
       VirtualSubnet = true
       BlockQUIC = false
-      StaticMode = selectedUserConfig.value!!.tun_address.isEmpty()
+      StaticMode = selectedUserConfig.value!!.tun_address != null
       Log.d(TAG, "StaticMode: $StaticMode")
       FlashMode = false
       AtomicHttpProxySet = false
@@ -170,7 +173,7 @@ class MainActivity : PppVpnActivity() {
             keep_alived[0] = 0
             keep_alived[1] = 0
             aggligator = 0
-            servers.add(selectedUserConfig.value!!.static_server)
+            servers.add(selectedUserConfig.value!!.static_server.toString())
             Log.d(TAG, "udp static servers: ${servers}")
           }
         }
@@ -198,7 +201,7 @@ class MainActivity : PppVpnActivity() {
         client.apply {
           guid = UUID.randomUUID().toString()
           Log.d(TAG, "client guid: $guid")
-          server = "ppp://" + selectedUserConfig.value!!.server.toString()
+          server = selectedUserConfig.value!!.server.toString()
           Log.d(TAG, "client server: $server")
           bandwidth = 0
           reconnections.timeout = Macro.PPP_TCP_CONNECT_TIMEOUT
@@ -262,8 +265,8 @@ class MainActivity : PppVpnActivity() {
     data class NavItem(val label: String, val icon: ImageVector)
 
     val items = listOf(
-      NavItem("Home", Icons.Default.Home),
-      NavItem("Settings", Icons.Default.Settings),
+      NavItem(getString(R.string.nav_home), Icons.Default.Home),
+      NavItem(getString(R.string.nav_settings), Icons.Default.Settings),
     )
 
     NavigationBar(
@@ -303,8 +306,21 @@ class MainActivity : PppVpnActivity() {
   fun ConfigSelectionScreen(navController: NavHostController) {
     var selectedConfig by remember { mutableStateOf<Int?>(null) }
     var isEditing by remember { mutableStateOf(false) }
+
+    // 拿到所有配置，如果反序列化失败（升级 openppp2 后数据格式不兼容）就清空所有当前配置。
     val originalAllConfig = configPreferences.getString(ALL_CONFIGS_KEY, "[]")!!
-      .let { Json.decodeFromString(userConfigListSerializer, it) }.toMutableList()
+      .let {
+        try {
+          Json.decodeFromString(userConfigListSerializer, it)
+        } catch (e: Exception) {
+          Toast.makeText(
+            applicationContext,
+            getString(R.string.warn_deserialize),
+            Toast.LENGTH_LONG
+          ).show()
+          emptyList()
+        }
+      }.toMutableList()
     val configListState = remember { mutableStateListOf(*originalAllConfig.toTypedArray()) }
     var vpnRunning by remember { mutableStateOf(vpn_state() != LIBOPENPPP2_LINK_STATE_CLIENT_UNINITIALIZED) }
 
@@ -314,10 +330,12 @@ class MainActivity : PppVpnActivity() {
 
     // functions
     val select = { index: Int? ->
+      Log.d(TAG, "selected config index: $index")
       selectedConfig = index
       selectedUserConfig.value = index?.let { configListState[it] }
     }
-    val saveConfig = {
+    val persistAllConfig = {
+      Log.d(TAG, "persistAllConfig")
       configPreferences.edit()
         .putString(
           ALL_CONFIGS_KEY,
@@ -325,6 +343,7 @@ class MainActivity : PppVpnActivity() {
         ).apply()
     }
 
+    // 主屏 UI
     Column {
       LazyVerticalGrid(
         columns = GridCells.Adaptive(120.dp),
@@ -362,6 +381,7 @@ class MainActivity : PppVpnActivity() {
               .clickable {
                 if (isSelected) {
                   isEditing = true
+                  Log.d(TAG, "Edit config: $index")
                 } else {
                   select(index)
                 }
@@ -369,7 +389,7 @@ class MainActivity : PppVpnActivity() {
             contentAlignment = Alignment.Center
           ) {
             Text(
-              text = config.name.ifEmpty { config.server.ip },
+              text = config.name.ifEmpty { config.server.host },
               fontSize = 14.sp,
               color = MaterialTheme.colorScheme.onPrimary,
               overflow = TextOverflow.Ellipsis
@@ -384,7 +404,7 @@ class MainActivity : PppVpnActivity() {
               .clickable {
                 Log.i(TAG, "Add a new config")
                 configListState.add(UserConfig())
-                saveConfig()
+                persistAllConfig()
               },
             contentAlignment = Alignment.Center
           ) {
@@ -402,10 +422,15 @@ class MainActivity : PppVpnActivity() {
         val testText = remember { mutableStateOf("Test") }
         var startText by remember { mutableStateOf(getString(R.string.vpn_start)) }
 
+        // 开始按钮
         Button(
           onClick = {
             if (selectedConfig == null) {
-              Toast.makeText(this@MainActivity, "Please select a config first", Toast.LENGTH_SHORT)
+              Toast.makeText(
+                this@MainActivity,
+                getString(R.string.warn_config_not_select),
+                Toast.LENGTH_SHORT
+              )
                 .show()
               return@Button
             }
@@ -429,9 +454,11 @@ class MainActivity : PppVpnActivity() {
           }
         }
 
+        // 停止按钮
         Button(onClick = {
           vpn_stop()
           vpnRunning = false
+          startText = getString(R.string.vpn_start)
         }) {
           Text(getString(R.string.vpn_stop))
         }
@@ -442,13 +469,16 @@ class MainActivity : PppVpnActivity() {
           config = configListState[selectedConfig!!],
           onDismiss = { isEditing = false },
           onSave = { newConfigValue ->
+            // 点击保存按钮后，更新当前选中配置 + 持久化，关闭窗口
+            Log.d(TAG, "Save config: $newConfigValue")
             configListState[selectedConfig!!] = newConfigValue
-            saveConfig()
+            selectedUserConfig.value = newConfigValue
+            persistAllConfig()
             isEditing = false
           },
           onDelete = {
             configListState.removeAt(selectedConfig!!)
-            saveConfig()
+            persistAllConfig()
             isEditing = false
             select(null)
           }
@@ -474,8 +504,15 @@ class MainActivity : PppVpnActivity() {
       )
     }
     var guid by remember { mutableStateOf(TextFieldValue(config.guid)) }
-    var static_server by remember { mutableStateOf(TextFieldValue(config.static_server)) }
-    var tun_address by remember { mutableStateOf(TextFieldValue(config.tun_address)) }
+    var static_server by remember { mutableStateOf(TextFieldValue(config.static_server.toString())) }
+    // null 则填入空字符串
+    var tun_address by remember {
+      mutableStateOf(
+        TextFieldValue(
+          config.tun_address?.toString() ?: ""
+        )
+      )
+    }
 
     val lazyListState = rememberLazyListState()
     val dialogKeyboardActions = KeyboardActions(onDone = {
@@ -491,7 +528,7 @@ class MainActivity : PppVpnActivity() {
       title = {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
           Text(
-            text = "Edit Configuration",
+            text = getString(R.string.config_title),
             modifier = Modifier
               .weight(1f)
               .padding(end = 8.dp),
@@ -508,7 +545,7 @@ class MainActivity : PppVpnActivity() {
               modifier = dialogTextFieldModifier,
               value = name,
               onValueChange = { name = it },
-              label = { Text("Config Name") },
+              label = { Text(getString(R.string.config_name)) },
               keyboardOptions = dialogKeyboardOptions,
               keyboardActions = KeyboardActions(onDone = { hideIME() })
             )
@@ -518,10 +555,7 @@ class MainActivity : PppVpnActivity() {
               modifier = dialogTextFieldModifier,
               value = server,
               onValueChange = { server = it },
-              label = { Text("Server IP and Port") },
-              leadingIcon = {
-                Text("ppp://")
-              },
+              label = { Text(getString(R.string.config_server)) },
               keyboardOptions = dialogKeyboardOptions,
               keyboardActions = dialogKeyboardActions
             )
@@ -532,7 +566,7 @@ class MainActivity : PppVpnActivity() {
               value = guid,
               readOnly = true,
               onValueChange = { guid = it },
-              label = { Text("GUID") },
+              label = { Text(getString(R.string.config_guid)) },
               placeholder = { Text("Random") },
               keyboardOptions = dialogKeyboardOptions,
               keyboardActions = dialogKeyboardActions
@@ -543,7 +577,7 @@ class MainActivity : PppVpnActivity() {
               modifier = dialogTextFieldModifier,
               value = static_server,
               onValueChange = { static_server = it },
-              label = { Text("Static server IP and Port") },
+              label = { Text(getString(R.string.config_static)) },
               keyboardOptions = dialogKeyboardOptions,
               keyboardActions = dialogKeyboardActions
             )
@@ -553,7 +587,7 @@ class MainActivity : PppVpnActivity() {
               modifier = dialogTextFieldModifier,
               value = tun_address,
               onValueChange = { tun_address = it },
-              label = { Text("Tun Address") },
+              label = { Text(getString(R.string.config_tun)) },
               keyboardOptions = dialogKeyboardOptions,
               keyboardActions = dialogKeyboardActions
             )
@@ -563,19 +597,21 @@ class MainActivity : PppVpnActivity() {
       confirmButton = {
         Button(
           onClick = {
+            // 保存配置
             try {
-              onSave(
-                UserConfig(
-                  name = name.text.trim(),
-                  server = IpWithPort.fromString(server.text.trim()),
-                  static_server = static_server.text.trim(),
-                  guid = guid.text.trim(),
-                  tun_address = tun_address.text.trim(),
-                )
+              val cfg = UserConfig(
+                name = name.text.trim(),
+                server = Address.parse(server.text.trim()),
+                static_server = Address.parse(static_server.text.trim()),
+                guid = guid.text.trim(),
+                tun_address = tun_address.text.trim()
+                  .let { if (it.isBlank()) null else Address.parse(it) },
               )
+              cfg.validate()
+              onSave(cfg)
             } catch (e: Exception) {
               e.printStackTrace()
-              Toast.makeText(this, "Invalid Server IP and Port: ${e.message}", Toast.LENGTH_LONG)
+              Toast.makeText(this, "Invalid URI: ${e.message}", Toast.LENGTH_LONG)
                 .show()
             }
           }
@@ -594,47 +630,58 @@ class MainActivity : PppVpnActivity() {
   }
 
   // 测试连接
-  @OptIn(DelicateCoroutinesApi::class)
   fun testConnection(state: MutableState<String>) {
-    // 启动异步任务
-    GlobalScope.launch(Dispatchers.IO) {
+    Log.i(TAG, "testConnection starting..")
+    lifecycleScope.launch(Dispatchers.IO) {
       val url = URL(settingsPreferences.getString(TEST_LINK_KEY, TEST_LINK_DEFAULT)!!)
-      val connection = url.openConnection() as HttpURLConnection
+      val timeout = settingsPreferences.getLong(TIMEOUT_KEY, TIMEOUT_DEFAULT)
+      val client = OkHttpClient.Builder()
+        .connectTimeout(timeout, TimeUnit.MILLISECONDS)
+        .readTimeout(timeout, TimeUnit.MILLISECONDS)
+        .callTimeout(timeout, TimeUnit.MILLISECONDS)
+        .build()
+
+      val request = Request.Builder()
+        .url(url)
+        .get()
+        .build()
+
       val beginTime = System.currentTimeMillis()
-
+      Log.d(TAG, "beginTime: $beginTime")
       try {
-        // 设置连接超时时间
-        val timeout = settingsPreferences.getInt(TIMEOUT_KEY, TIMEOUT_DEFAULT)
-        connection.connectTimeout = timeout
-        connection.readTimeout = timeout
-
-        // 发起请求并读取响应
-        connection.requestMethod = "GET"
-        val responseCode = connection.responseCode
-        if (responseCode == HttpURLConnection.HTTP_NO_CONTENT || responseCode == HttpURLConnection.HTTP_OK) {
-          withContext(Dispatchers.Main) {
-            state.value = (System.currentTimeMillis() - beginTime).toString() + "ms"
+        client.newCall(request).execute().use { response ->
+          val result = if (response.isSuccessful) {
+            (System.currentTimeMillis() - beginTime).toString() + "ms"
+          } else {
+            "-1 ms"
           }
-        } else {
-          Log.d(TAG, "Response code: $responseCode")
           withContext(Dispatchers.Main) {
-            state.value = "-1 ms"
+            state.value = result
           }
-        }
-      } catch (e: ConnectException) {
-        val cause: String = e.cause.toString()
-        Log.w(TAG, "$cause: ${e.message}")
-        withContext(Dispatchers.Main) {
-          state.value = cause
         }
       } catch (e: Exception) {
-        Log.w(TAG, "${e.cause}: ${e.message}")
-        withContext(Dispatchers.Main) {
-          state.value = "Error"
-          Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
+        Log.e(TAG, "${e.cause}: ${e.message}")
+        val tx = when (e.cause) {
+          is ConnectException -> {
+            "No Connection"
+          }
+
+          is UnknownHostException -> {
+            "Unknown Host"
+          }
+
+          is SocketTimeoutException -> {
+            "Timeout"
+          }
+
+          else -> {
+            "Error"
+          }
         }
-      } finally {
-        connection.disconnect()
+        withContext(Dispatchers.Main) {
+          state.value = tx
+          Toast.makeText(this@MainActivity, "${e.cause}: ${e.message}", Toast.LENGTH_LONG).show()
+        }
       }
     }
   }
