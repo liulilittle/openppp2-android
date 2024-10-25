@@ -9,7 +9,7 @@ gson = "2.10.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 kotlin = "2.0.20"
-kotlinapp = "8.6.0"
+kotlinapp = "8.7.1"
 kotlinxCoroutinesCore = "1.8.0"
 kotlinxSerializationJson = "1.7.1"
 material = "1.12.0"
@@ -17,6 +17,7 @@ navigationCompose = "2.8.0"
 navigationRuntimeKtx = "2.8.0"
 uiTiles = "2.4.0"
 uiTilesExtended = "2.4.0"
+junitJupiter = "5.8.1"
 
 [libraries]
 android-processes = { module = "com.jaredrummler:android-processes", version.ref = "androidProcesses" }
@@ -38,6 +39,7 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 material = { module = "com.google.android.material:material", version.ref = "material" }
 ui-tiles = { module = "com.github.alorma.compose-settings:ui-tiles", version.ref = "uiTiles" }
 ui-tiles-extended = { module = "com.github.alorma.compose-settings:ui-tiles-extended", version.ref = "uiTilesExtended" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
 
 [plugins]
 kotlin-app = { id = "com.android.application", version.ref = "kotlinapp" }
