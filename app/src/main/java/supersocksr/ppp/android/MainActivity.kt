@@ -74,6 +74,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import supersocksr.ppp.android.c.libopenppp2.LIBOPENPPP2_LINK_STATE_CLIENT_UNINITIALIZED
 import supersocksr.ppp.android.openppp2.IPAddressX
 import supersocksr.ppp.android.openppp2.Macro
@@ -83,11 +85,11 @@ import supersocksr.ppp.android.ui.theme.Pink500
 import supersocksr.ppp.android.utils.RawReader
 import supersocksr.ppp.android.utils.UserConfig
 import java.net.ConnectException
-import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import java.net.URL
 import java.net.UnknownHostException
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 
 const val TAG = "MainActivity"
@@ -630,55 +632,57 @@ class MainActivity : PppVpnActivity() {
   // 测试连接
   @OptIn(DelicateCoroutinesApi::class)
   fun testConnection(state: MutableState<String>) {
-    // 启动异步任务
+    Log.i(TAG, "testConnection starting..")
     lifecycleScope.launch(Dispatchers.IO) {
       val url = URL(settingsPreferences.getString(TEST_LINK_KEY, TEST_LINK_DEFAULT)!!)
-      val connection = url.openConnection() as HttpURLConnection
-      val beginTime = System.currentTimeMillis()
-      try {
-        // 设置连接超时时间
-        val timeout = settingsPreferences.getInt(TIMEOUT_KEY, TIMEOUT_DEFAULT)
-        connection.connectTimeout = timeout
-        connection.readTimeout = timeout
+      val timeout = settingsPreferences.getLong(TIMEOUT_KEY, TIMEOUT_DEFAULT)
+      val client = OkHttpClient.Builder()
+        .connectTimeout(timeout, TimeUnit.MILLISECONDS)
+        .readTimeout(timeout, TimeUnit.MILLISECONDS)
+        .callTimeout(timeout, TimeUnit.MILLISECONDS)
+        .build()
 
-        // 发起请求并读取响应
-        connection.requestMethod = "GET"
-        val responseCode = connection.responseCode
-        val timeResult =
-          if (responseCode == HttpURLConnection.HTTP_NO_CONTENT || responseCode == HttpURLConnection.HTTP_OK) {
+      val request = Request.Builder()
+        .url(url)
+        .get()
+        .build()
+
+      val beginTime = System.currentTimeMillis()
+      Log.d(TAG, "beginTime: $beginTime")
+      try {
+        client.newCall(request).execute().use { response ->
+          val result = if (response.isSuccessful) {
             (System.currentTimeMillis() - beginTime).toString() + "ms"
           } else {
-            Log.d(TAG, "Response code: $responseCode")
             "-1 ms"
           }
-        withContext(Dispatchers.Main) {
-          state.value = timeResult
+          withContext(Dispatchers.Main) {
+            state.value = result
+          }
         }
       } catch (e: Exception) {
-        val (tx, toa) = when (e) {
+        Log.e(TAG, "${e.cause}: ${e.message}")
+        val tx = when (e.cause) {
           is ConnectException -> {
-            Pair("No Connection", e.message)
+            "No Connection"
           }
 
           is UnknownHostException -> {
-            Pair("Unknown Host", e.message)
+            "Unknown Host"
           }
 
           is SocketTimeoutException -> {
-            Pair("Timeout", e.message)
+            "Timeout"
           }
 
           else -> {
-            Pair("Error", e.message)
+            "Error"
           }
         }
-        Log.e(TAG, "${e.cause}: ${e.message}")
         withContext(Dispatchers.Main) {
-          state.value = "Error"
-          Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
+          state.value = tx
+          Toast.makeText(this@MainActivity, "${e.cause}: ${e.message}", Toast.LENGTH_LONG).show()
         }
-      } finally {
-        connection.disconnect()
       }
     }
   }

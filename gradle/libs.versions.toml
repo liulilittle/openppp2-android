@@ -1,8 +1,8 @@
 [versions]
-activityCompose = "1.9.2"
+activityCompose = "1.9.3"
 androidProcesses = "1.1.1"
 annotations = "23.0.0"
-composeBom = "2024.09.01"
+composeBom = "2024.10.00"
 coreKtx = "1.13.1"
 espressoCore = "3.6.1"
 gson = "2.10.1"
@@ -13,8 +13,9 @@ kotlinapp = "8.7.1"
 kotlinxCoroutinesCore = "1.8.0"
 kotlinxSerializationJson = "1.7.1"
 material = "1.12.0"
-navigationCompose = "2.8.0"
-navigationRuntimeKtx = "2.8.0"
+navigationCompose = "2.8.3"
+navigationRuntimeKtx = "2.8.3"
+okhttpBom = "4.12.0"
 uiTiles = "2.4.0"
 uiTilesExtended = "2.4.0"
 junitJupiter = "5.8.1"
@@ -37,6 +38,8 @@ junit = { module = "junit:junit", version.ref = "junit" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
+okhttp = { module = "com.squareup.okhttp3:okhttp" }
+okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version.ref = "okhttpBom" }
 ui-tiles = { module = "com.github.alorma.compose-settings:ui-tiles", version.ref = "uiTiles" }
 ui-tiles-extended = { module = "com.github.alorma.compose-settings:ui-tiles-extended", version.ref = "uiTilesExtended" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }

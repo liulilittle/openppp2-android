@@ -111,9 +111,7 @@ public final class VPN {
 
     // Set the ip route list file that the vpn bypasses.
     public static boolean vpn_set_bypass_ip_list_file(String bypass_ip_list_file_path) {
-        String bypass_ip_list = FileX.file_read_all_text(bypass_ip_list_file_path);
-        bypass_ip_list = TextX.string_trim(bypass_ip_list);
-
+        String bypass_ip_list = FileX.file_read_all_text(bypass_ip_list_file_path).trim();
         return vpn_set_bypass_ip_list(bypass_ip_list);
     }
 

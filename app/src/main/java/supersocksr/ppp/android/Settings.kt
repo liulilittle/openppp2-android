@@ -43,10 +43,10 @@ import com.alorma.compose.settings.ui.SettingsMenuLink
 const val TEST_LINK_KEY = "test_link"
 const val TEST_LINK_DEFAULT = "http://cp.cloudflare.com"
 const val TIMEOUT_KEY = "timeout"
-const val TIMEOUT_DEFAULT = 3000
+const val TIMEOUT_DEFAULT = 3000L
 
 
-class Settings(val context: Context, val preferences: SharedPreferences) {
+class Settings(val context: Context, private val preferences: SharedPreferences) {
   private val groupPaddingValues = PaddingValues(8.dp)
 
   @Composable
@@ -104,7 +104,7 @@ class Settings(val context: Context, val preferences: SharedPreferences) {
     var timeout by remember {
       mutableStateOf(
         TextFieldValue(
-          preferences.getInt(TIMEOUT_KEY, TIMEOUT_DEFAULT).toString()
+          preferences.getLong(TIMEOUT_KEY, TIMEOUT_DEFAULT).toString()
         )
       )
     }
