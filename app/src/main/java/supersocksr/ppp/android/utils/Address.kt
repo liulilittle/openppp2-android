@@ -1,3 +1,5 @@
+package supersocksr.ppp.android.utils
+
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -10,9 +12,9 @@ data class Address(
 ) {
 
   companion object {
-    val addressRegex = Regex(
+    private val addressRegex = Regex(
       "^(?:([a-zA-Z][a-zA-Z0-9+.-]*)://)?" +  // Group 1: scheme
-              "(?:([^\\[\\]:/]+)?)" +                 // Group 2: host
+              "([^\\[\\]:/]+)?" +                 // Group 2: host
               "(?:\\[([^]]+)])?" +                    // Group 3: ip
               "(?::(\\d+))?" +                        // Group 4: port
               "(/.*)?"                                // Group 5: path

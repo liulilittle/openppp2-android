@@ -1,6 +1,5 @@
 package supersocksr.ppp.android.utils
 
-import Address
 import kotlinx.serialization.Serializable
 
 @Serializable
