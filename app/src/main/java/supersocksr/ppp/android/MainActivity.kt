@@ -389,7 +389,7 @@ class MainActivity : PppVpnActivity() {
             contentAlignment = Alignment.Center
           ) {
             Text(
-              text = config.name.ifEmpty { config.server.host },
+              text = config.name.ifEmpty { config.server.host.orEmpty() },
               fontSize = 14.sp,
               color = MaterialTheme.colorScheme.onPrimary,
               overflow = TextOverflow.Ellipsis
@@ -601,8 +601,8 @@ class MainActivity : PppVpnActivity() {
             try {
               val cfg = UserConfig(
                 name = name.text.trim(),
-                server = Address.parse(server.text.trim()),
-                static_server = Address.parse(static_server.text.trim()),
+                server = Address.unsafeParse(server.text.trim()),
+                static_server = Address.unsafeParse(static_server.text.trim()),
                 guid = guid.text.trim(),
                 tun_address = tun_address.text.trim()
                   .let { if (it.isBlank()) null else Address.parse(it) },
@@ -611,7 +611,7 @@ class MainActivity : PppVpnActivity() {
               onSave(cfg)
             } catch (e: Exception) {
               e.printStackTrace()
-              Toast.makeText(this, "Invalid URI: ${e.message}", Toast.LENGTH_LONG)
+              Toast.makeText(this, "Invalid Address: ${e.message}", Toast.LENGTH_LONG)
                 .show()
             }
           }
