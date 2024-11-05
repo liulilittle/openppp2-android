@@ -2,17 +2,18 @@
 activityCompose = "1.9.3"
 androidProcesses = "1.1.1"
 annotations = "23.0.0"
-composeBom = "2024.10.00"
-coreKtx = "1.13.1"
+composeBom = "2024.10.01"
+coreKtx = "1.15.0"
 espressoCore = "3.6.1"
 gson = "2.10.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 kotlin = "2.0.20"
-kotlinapp = "8.7.1"
+kotlinapp = "8.7.2"
 kotlinxCoroutinesCore = "1.8.0"
 kotlinxSerializationJson = "1.7.1"
 material = "1.12.0"
+namedRegexpVersion = "1.0.0"
 navigationCompose = "2.8.3"
 navigationRuntimeKtx = "2.8.3"
 okhttpBom = "4.12.0"
@@ -40,6 +41,7 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 material = { module = "com.google.android.material:material", version.ref = "material" }
 okhttp = { module = "com.squareup.okhttp3:okhttp" }
 okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version.ref = "okhttpBom" }
+tony19-named-regexp = { module = "com.github.tony19:named-regexp", version.ref = "namedRegexpVersion" }
 ui-tiles = { module = "com.github.alorma.compose-settings:ui-tiles", version.ref = "uiTiles" }
 ui-tiles-extended = { module = "com.github.alorma.compose-settings:ui-tiles-extended", version.ref = "uiTilesExtended" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }

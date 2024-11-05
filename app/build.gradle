@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace 'supersocksr.ppp.android'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId 'supersocksr.ppp.android'
         minSdk 24
-        targetSdk 34
+        targetSdk 35
         versionCode 1
         versionName "1.0"
 
@@ -92,6 +92,11 @@ dependencies {
     // OkHttp
     implementation(platform(libs.okhttp.bom))
     implementation(libs.okhttp)
+
+    // Named regex: https://github.com/tony19/named-regexp
+    // Why: https://stackoverflow.com/questions/32776168/regex-pattern-in-android-studio-throws-error-this-named-group-syntax-is-not-su
+    // But I tried, it's weak, so we don't use it.
+    // implementation libs.tony19.named.regexp
 
     //noinspection GradleDependency
     implementation libs.gson
