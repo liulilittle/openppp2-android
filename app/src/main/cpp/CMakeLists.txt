@@ -11,6 +11,7 @@ SET(CMAKE_CXX_FLAGS "-fPIC -stdlib=libc++ -fvisibility=hidden -Wno-#pragma-messa
 # Configure predefined compilation macros.
 ADD_DEFINITIONS(-D_ANDROID)
 ADD_DEFINITIONS(-DBUDDY_ALLOC_IMPLEMENTATION)
+# ADD_DEFINITIONS(-D_ANDROID_REDEF_STD_IN_OUT_ERR)
 
 # Set the tripartite library directorys.
 SET(THIRD_PARTY_LIBRARY_DIR D:/android/cxx/3rd)
@@ -93,6 +94,7 @@ FILE(GLOB_RECURSE SOURCE_FILES
         ${PROJECT_ROOT_DIR}/common/lwip/core/*.c
         ${PROJECT_ROOT_DIR}/common/lwip/api/*.c
 
+        ${PROJECT_ROOT_DIR}/common/aggligator/*.cpp
         ${PROJECT_ROOT_DIR}/common/base64/*.cpp
         ${PROJECT_ROOT_DIR}/common/chnroutes2/*.cpp
         ${PROJECT_ROOT_DIR}/common/json/src/*.cpp

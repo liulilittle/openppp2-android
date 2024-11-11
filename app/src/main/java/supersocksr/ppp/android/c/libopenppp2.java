@@ -122,6 +122,10 @@ public final class libopenppp2 {
 
     public native int socket_get_socket_type(int fd_);
 
+    public native boolean set_tun_safe_queue(boolean safe_mode);
+
+    public native int is_tun_safe_queue();
+
     public interface libopenppp2_internal {
         boolean post_exec(int sequence);
 

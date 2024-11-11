@@ -48,7 +48,7 @@ junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.r
 
 [plugins]
 kotlin-app = { id = "com.android.application", version.ref = "kotlinapp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version = "1.9.23" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serde = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

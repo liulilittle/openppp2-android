@@ -78,7 +78,9 @@ import okhttp3.Request
 import supersocksr.ppp.android.c.libopenppp2.LIBOPENPPP2_LINK_STATE_CLIENT_UNINITIALIZED
 import supersocksr.ppp.android.openppp2.IPAddressX
 import supersocksr.ppp.android.openppp2.Macro
+import supersocksr.ppp.android.openppp2.VPN
 import supersocksr.ppp.android.openppp2.VPNLinkConfiguration
+import supersocksr.ppp.android.openppp2.i.LinkOf
 import supersocksr.ppp.android.ui.theme.Openppp2Theme
 import supersocksr.ppp.android.ui.theme.Pink500
 import supersocksr.ppp.android.utils.Address
@@ -90,7 +92,6 @@ import java.net.URL
 import java.net.UnknownHostException
 import java.util.UUID
 import java.util.concurrent.TimeUnit
-
 
 const val TAG = "MainActivity"
 const val ALL_CONFIGS_KEY = "all_configs"
@@ -202,7 +203,7 @@ class MainActivity : PppVpnActivity() {
         client.apply {
           guid = UUID.randomUUID().toString()
           Log.d(TAG, "client guid: $guid")
-          server = selectedUserConfig.value!!.server.toString()
+          server = VPN.vpn_link_of(selectedUserConfig.value!!.server.toString())!!.url
           Log.d(TAG, "client server: $server")
           bandwidth = 0
           reconnections.timeout = Macro.PPP_TCP_CONNECT_TIMEOUT
