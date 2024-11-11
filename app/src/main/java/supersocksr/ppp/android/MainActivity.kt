@@ -1,6 +1,5 @@
 package supersocksr.ppp.android
 
-import Address
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -49,6 +48,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -81,6 +81,7 @@ import supersocksr.ppp.android.openppp2.Macro
 import supersocksr.ppp.android.openppp2.VPNLinkConfiguration
 import supersocksr.ppp.android.ui.theme.Openppp2Theme
 import supersocksr.ppp.android.ui.theme.Pink500
+import supersocksr.ppp.android.utils.Address
 import supersocksr.ppp.android.utils.RawReader
 import supersocksr.ppp.android.utils.UserConfig
 import java.net.ConnectException
@@ -95,11 +96,11 @@ const val TAG = "MainActivity"
 const val ALL_CONFIGS_KEY = "all_configs"
 
 class MainActivity : PppVpnActivity() {
-  val userConfigListSerializer = ListSerializer(UserConfig.serializer())
-  lateinit var configPreferences: SharedPreferences
-  lateinit var settingsPreferences: SharedPreferences
-  lateinit var settings: Settings
-  val selectedUserConfig: MutableState<UserConfig?> = mutableStateOf(null)
+  private val userConfigListSerializer = ListSerializer(UserConfig.serializer())
+  private lateinit var configPreferences: SharedPreferences
+  private lateinit var settingsPreferences: SharedPreferences
+  private lateinit var settings: Settings
+  private val selectedUserConfig: MutableState<UserConfig?> = mutableStateOf(null)
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -174,7 +175,7 @@ class MainActivity : PppVpnActivity() {
             keep_alived[1] = 0
             aggligator = 0
             servers.add(selectedUserConfig.value!!.static_server.toString())
-            Log.d(TAG, "udp static servers: ${servers}")
+            Log.d(TAG, "udp static servers: $servers")
           }
         }
 
@@ -223,7 +224,7 @@ class MainActivity : PppVpnActivity() {
   }
 
   // FIXME: this function actually cannot hide ime.
-  fun hideIME(view: View? = null) {
+  private fun hideIME(view: View? = null) {
     val focusedView = currentFocus
     if (focusedView !is TextInputEditText) {
       return
@@ -238,7 +239,7 @@ class MainActivity : PppVpnActivity() {
   @Composable
   fun App() {
     val navController = rememberNavController()
-    val selectedTab = remember { mutableStateOf(0) } // 当前选中的按钮索引
+    val selectedTab = remember { mutableIntStateOf(0) } // 当前选中的按钮索引
 
     Scaffold(
       bottomBar = {
@@ -389,7 +390,7 @@ class MainActivity : PppVpnActivity() {
             contentAlignment = Alignment.Center
           ) {
             Text(
-              text = config.name.ifEmpty { config.server.host },
+              text = config.name.ifEmpty { config.server.host.orEmpty() },
               fontSize = 14.sp,
               color = MaterialTheme.colorScheme.onPrimary,
               overflow = TextOverflow.Ellipsis
@@ -601,8 +602,8 @@ class MainActivity : PppVpnActivity() {
             try {
               val cfg = UserConfig(
                 name = name.text.trim(),
-                server = Address.parse(server.text.trim()),
-                static_server = Address.parse(static_server.text.trim()),
+                server = Address.unsafeParse(server.text.trim()),
+                static_server = Address.unsafeParse(static_server.text.trim()),
                 guid = guid.text.trim(),
                 tun_address = tun_address.text.trim()
                   .let { if (it.isBlank()) null else Address.parse(it) },
@@ -611,7 +612,11 @@ class MainActivity : PppVpnActivity() {
               onSave(cfg)
             } catch (e: Exception) {
               e.printStackTrace()
-              Toast.makeText(this, "Invalid URI: ${e.message}", Toast.LENGTH_LONG)
+              Toast.makeText(
+                this,
+                "Invalid supersocksr.ppp.android.utils.Address: ${e.message}",
+                Toast.LENGTH_LONG
+              )
                 .show()
             }
           }
@@ -630,7 +635,7 @@ class MainActivity : PppVpnActivity() {
   }
 
   // 测试连接
-  fun testConnection(state: MutableState<String>) {
+  private fun testConnection(state: MutableState<String>) {
     Log.i(TAG, "testConnection starting..")
     lifecycleScope.launch(Dispatchers.IO) {
       val url = URL(settingsPreferences.getString(TEST_LINK_KEY, TEST_LINK_DEFAULT)!!)
