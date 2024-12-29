@@ -196,7 +196,7 @@ class Settings(val context: Context, private val preferences: SharedPreferences)
 
         LaunchedEffect(Unit) {
           try {
-            val process = Runtime.getRuntime().exec("logcat -d *:E")
+            val process = Runtime.getRuntime().exec("logcat -d MainActivity:D *:S")
             val bufferedReader = process.inputStream.bufferedReader()
             while (true) {
               val line = bufferedReader.readLine() ?: break

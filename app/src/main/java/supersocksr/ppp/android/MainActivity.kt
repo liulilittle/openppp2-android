@@ -68,6 +68,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.android.material.textfield.TextInputEditText
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -80,7 +81,6 @@ import supersocksr.ppp.android.openppp2.IPAddressX
 import supersocksr.ppp.android.openppp2.Macro
 import supersocksr.ppp.android.openppp2.VPN
 import supersocksr.ppp.android.openppp2.VPNLinkConfiguration
-import supersocksr.ppp.android.openppp2.i.LinkOf
 import supersocksr.ppp.android.ui.theme.Openppp2Theme
 import supersocksr.ppp.android.ui.theme.Pink500
 import supersocksr.ppp.android.utils.Address
@@ -135,9 +135,6 @@ class MainActivity : PppVpnActivity() {
         add("8.8.8.8")
         add("8.8.4.4")
       }
-
-      BypassIpList = rawReader.readRawResource(R.raw.ip)
-      DNSRuleList = rawReader.readRawResource(R.raw.domain)
       AllowedApplicationPackageNames.add(packageName)
       DisallowedApplicationPackageNames.add(packageName)
 
@@ -219,7 +216,12 @@ class MainActivity : PppVpnActivity() {
           }
         }
       }
-
+    }
+    Log.d(TAG, "start with VPNLinkConfiguration: ${Gson().toJson(config)}")
+    // do not log BypassIpList and DNSRuleList because they are too long
+    config.apply {
+      BypassIpList = rawReader.readRawResource(R.raw.ip)
+      DNSRuleList = rawReader.readRawResource(R.raw.domain)
     }
     return config
   }
