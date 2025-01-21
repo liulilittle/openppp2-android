@@ -242,7 +242,9 @@ public abstract class VPNConnection extends VpnService {
         network_interface.ip = config.IPAddress;
         network_interface.mask = config.SubnetAddress;
         network_interface.vnet = config.VirtualSubnet;
+        network_interface.mux = config.Mux;
         network_interface.tun = FileX.file_descriptor_to_int(tun_fd);
+
         if (!VPN.vpn_set_flash_mode(config.FlashMode)) {
             X.close(tun);
             return Macro.RUN_UNKNOWN;

@@ -20,6 +20,10 @@ public class NetworkInterface {
     @Expose(serialize = true, deserialize = true)
     public boolean vnet;
 
+    @SerializedName("mux")
+    @Expose(serialize = true, deserialize = true)
+    public int mux;
+
     @SerializedName("gw")
     @Expose(serialize = true, deserialize = true)
     public String gw;

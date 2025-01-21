@@ -50,6 +50,10 @@ public class VPNLinkConfiguration {
     @Expose(serialize = true, deserialize = true)
     public boolean StaticMode;
 
+    @SerializedName("Mux")
+    @Expose(serialize = true, deserialize = true)
+    public int Mux;
+
     @SerializedName("FlashMode")
     @Expose(serialize = true, deserialize = true)
     public boolean FlashMode = true;

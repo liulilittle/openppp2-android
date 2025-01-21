@@ -80,7 +80,7 @@ public final class libopenppp2 {
 
     public native boolean set_dns_rules_list(String rules);
 
-    public native int set_network_interface(int tun, boolean vnet, boolean block_quic, boolean static_mode, String ip, String mask, String gw);
+    public native int set_network_interface(int tun, int mux, boolean vnet, boolean block_quic, boolean static_mode, String ip, String mask, String gw);
 
     public native int set_app_configuration(String configurations /* configurations is appsettings.json */);
 

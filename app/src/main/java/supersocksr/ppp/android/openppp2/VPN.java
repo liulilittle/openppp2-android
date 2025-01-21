@@ -147,13 +147,13 @@ public final class VPN {
     }
 
     // Set the VPN virtual network interface information.
-    public static int vpn_set_network_interface(int tun, boolean vnet, boolean block_quic, boolean static_mode, String ip, String mask, String gw) {
-        return libopenppp2.c.set_network_interface(tun, vnet, block_quic, static_mode, ip, mask, gw);
+    public static int vpn_set_network_interface(int tun, int mux, boolean vnet, boolean block_quic, boolean static_mode, String ip, String mask, String gw) {
+        return libopenppp2.c.set_network_interface(tun, mux, vnet, block_quic, static_mode, ip, mask, gw);
     }
 
     // Set the VPN virtual network interface information.
     public static int vpn_set_network_interface(@NonNull NetworkInterface network_interface) {
-        return libopenppp2.c.set_network_interface(network_interface.tun, network_interface.vnet, network_interface.block_quic, network_interface.static_mode, network_interface.ip, network_interface.mask, network_interface.gw);
+        return libopenppp2.c.set_network_interface(network_interface.tun, network_interface.mux, network_interface.vnet, network_interface.block_quic, network_interface.static_mode, network_interface.ip, network_interface.mask, network_interface.gw);
     }
 
     // Get the Ethernet remote configuration information of the current VPN.
