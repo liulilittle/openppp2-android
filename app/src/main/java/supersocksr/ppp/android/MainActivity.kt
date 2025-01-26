@@ -203,7 +203,7 @@ class MainActivity : PppVpnActivity() {
         client.apply {
           guid = UUID.randomUUID().toString()
           Log.d(TAG, "client guid: $guid")
-          server = VPN.vpn_link_of(selectedUserConfig.value!!.server.toString())!!.url
+          server = VPN.vpn_link_of(selectedUserConfig.value?.server?.toString() ?: "")?.url ?: ""
           Log.d(TAG, "client server: $server")
           bandwidth = 0
           reconnections.timeout = Macro.PPP_TCP_CONNECT_TIMEOUT
