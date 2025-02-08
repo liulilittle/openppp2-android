@@ -89,16 +89,6 @@ public final class VPN {
         return libopenppp2.c.is_default_flash_type_of_service();
     }
 
-    // Set the VPN to tun safe queue mode.
-    public static boolean vpn_set_tun_safe_queue(boolean value) {
-        return libopenppp2.c.set_tun_safe_queue(value);
-    }
-
-    // Get the VPN to tun safe queue mode, return < 0 Fails，= 0 Unsafe，> 0 Safety.
-    public static int vpn_get_tun_safe_queue() {
-        return libopenppp2.c.is_tun_safe_queue();
-    }
-
     // Get the ip route list that the current VPN configuration bypasses.
     public static String vpn_get_bypass_ip_list() {
         return libopenppp2.c.get_bypass_ip_list();
