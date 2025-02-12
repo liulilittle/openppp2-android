@@ -25,6 +25,10 @@ public final class VPNConfiguration {
     @Expose(serialize = true, deserialize = true)
     public final UdpConfiguration udp = new UdpConfiguration();
 
+    @SerializedName("mux")
+    @Expose(serialize = true, deserialize = true)
+    public final MuxConfiguration mux = new MuxConfiguration();
+
     @SerializedName("websocket")
     @Expose(serialize = true, deserialize = true)
     public final WebsocketConfiguration websocket = new WebsocketConfiguration();
@@ -57,6 +61,11 @@ public final class VPNConfiguration {
         config.tcp.turbo = true;
         config.tcp.backlog = Macro.PPP_LISTEN_BACKLOG;
         config.tcp.fast_open = true;
+
+        config.mux.inactive.timeout = Macro.PPP_MUX_INACTIVE_TIMEOUT;
+        config.mux.connect.timeout = Macro.PPP_MUX_CONNECT_TIMEOUT;
+        config.mux.keep_alived[0] = 0;
+        config.mux.keep_alived[1] = Macro.PPP_MUX_CONNECT_TIMEOUT;
 
         config.udp.inactive.timeout = Macro.PPP_UDP_INACTIVE_TIMEOUT;
         config.udp.dns.timeout = Macro.PPP_DEFAULT_DNS_TIMEOUT;
@@ -167,6 +176,20 @@ public final class VPNConfiguration {
         @SerializedName("fast-open")
         @Expose(serialize = true, deserialize = true)
         public boolean fast_open;
+    }
+
+    public static class MuxConfiguration {
+        @SerializedName("inactive")
+        @Expose(serialize = true, deserialize = true)
+        public final TimeoutConfiguration inactive = new TimeoutConfiguration();
+
+        @SerializedName("connect")
+        @Expose(serialize = true, deserialize = true)
+        public final TimeoutConfiguration connect = new TimeoutConfiguration();
+
+        @SerializedName("keep-alived")
+        @Expose(serialize = true, deserialize = true)
+        public final int[] keep_alived = new int[2];
     }
 
     public static class UdpConfiguration {

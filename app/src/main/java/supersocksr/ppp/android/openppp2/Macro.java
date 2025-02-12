@@ -12,6 +12,8 @@ public final class Macro {
     public static final int PPP_TCP_CONNECT_TIMEOUT = 5;
     public static final int PPP_TCP_INACTIVE_TIMEOUT = 300;
     public static final int PPP_UDP_INACTIVE_TIMEOUT = 72;
+    public static final int PPP_MUX_CONNECT_TIMEOUT = 20;
+    public static final int PPP_MUX_INACTIVE_TIMEOUT = 60;
     public static final int PPP_DNS_SYS_PORT = 53;
     public static final int PPP_UDP_TIMER_INTERVAL = 10;
     public static final int PPP_DEFAULT_DNS_TIMEOUT = 4;
