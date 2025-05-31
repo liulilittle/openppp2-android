@@ -128,4 +128,5 @@ TARGET_LINK_LIBRARIES(${CMAKE_PROJECT_NAME}
         libboost_coroutine.a
         libboost_thread.a
         libboost_context.a
+        libboost_regex.a
         libboost_filesystem.a)
