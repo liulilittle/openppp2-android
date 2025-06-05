@@ -20,6 +20,7 @@ public final class Macro {
     public static final int PPP_DEFAULT_HTTP_PROXY_PORT = 3128; // android: 3128, no 8080.
     public static final int PPP_DEFAULT_SOCKS_PROXY_PORT = 1080;
     public static final int PPP_NOTIFICATION_CHANNEL_ID = 1;
+    public static final int PPP_DEFAULT_DNS_TTL = 60;
 
     public static final int RUN_OK = 0;
     public static final int RUN_ARG_VPN_SERVICE_IS_NULL = 1;

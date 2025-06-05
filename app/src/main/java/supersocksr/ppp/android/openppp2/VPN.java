@@ -152,6 +152,11 @@ public final class VPN {
         return JsonX.json_deserialize(json, EthernetInformation.class);
     }
 
+    // Set the list of DNS servers used when the VPN framework is running.
+    public static boolean vpn_set_dns_addresses(int ttl, String servers) {
+        return libopenppp2.c.set_dns_bcl(ttl, servers);
+    }
+
     // Enter the url and return the vpn's absolute link processing.
     @Nullable
     public static LinkOf vpn_link_of(String url) {

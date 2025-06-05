@@ -156,7 +156,27 @@ public final class VPNConfiguration {
         public int timeout;
     }
 
-    public static class TcpConfiguration {
+    public static class DnsConfiguration extends TimeoutConfiguration {
+        @SerializedName("ttl")
+        @Expose(serialize = true, deserialize = true)
+        public int ttl;
+
+        @SerializedName("cache")
+        @Expose(serialize = true, deserialize = true)
+        public boolean cache;
+    }
+
+    public static class WindowSizeConfiguration {
+        @SerializedName("cwnd")
+        @Expose(serialize = true, deserialize = true)
+        public int cwnd;
+
+        @SerializedName("rwnd")
+        @Expose(serialize = true, deserialize = true)
+        public int rwnd;
+    }
+
+    public static class TcpConfiguration extends WindowSizeConfiguration {
         @SerializedName("inactive")
         @Expose(serialize = true, deserialize = true)
         public final TimeoutConfiguration inactive = new TimeoutConfiguration();
@@ -192,14 +212,14 @@ public final class VPNConfiguration {
         public final int[] keep_alived = new int[2];
     }
 
-    public static class UdpConfiguration {
+    public static class UdpConfiguration extends WindowSizeConfiguration {
         @SerializedName("inactive")
         @Expose(serialize = true, deserialize = true)
         public final TimeoutConfiguration inactive = new TimeoutConfiguration();
 
         @SerializedName("dns")
         @Expose(serialize = true, deserialize = true)
-        public final TimeoutConfiguration dns = new TimeoutConfiguration();
+        public final DnsConfiguration dns = new DnsConfiguration();
 
         @SerializedName("static")
         @Expose(serialize = true, deserialize = true)

@@ -99,7 +99,7 @@ FILE(GLOB_RECURSE SOURCE_FILES
         ${PROJECT_ROOT_DIR}/common/chnroutes2/*.cpp
         ${PROJECT_ROOT_DIR}/common/json/src/*.cpp
         ${PROJECT_ROOT_DIR}/common/libtcpip/*.cpp
-
+        ${PROJECT_ROOT_DIR}/common/dnslib/*.cpp
         ${PROJECT_ROOT_DIR}/common/unix/*.c
         ${PROJECT_ROOT_DIR}/common/unix/*.cpp
 

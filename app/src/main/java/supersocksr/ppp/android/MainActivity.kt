@@ -80,7 +80,6 @@ import supersocksr.ppp.android.openppp2.IPAddressX
 import supersocksr.ppp.android.openppp2.Macro
 import supersocksr.ppp.android.openppp2.VPN
 import supersocksr.ppp.android.openppp2.VPNLinkConfiguration
-import supersocksr.ppp.android.openppp2.i.LinkOf
 import supersocksr.ppp.android.ui.theme.Openppp2Theme
 import supersocksr.ppp.android.ui.theme.Pink500
 import supersocksr.ppp.android.utils.Address
@@ -167,7 +166,12 @@ class MainActivity : PppVpnActivity() {
 
         udp.apply {
           inactive.timeout = Macro.PPP_UDP_INACTIVE_TIMEOUT
-          dns.timeout = Macro.PPP_DEFAULT_DNS_TIMEOUT
+          dns.apply {
+            timeout = Macro.PPP_DEFAULT_DNS_TIMEOUT
+            ttl = Macro.PPP_DEFAULT_DNS_TTL
+            cache = true
+          }
+
           static_.apply {
             quic = true
             dns = true
