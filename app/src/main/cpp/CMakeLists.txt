@@ -55,6 +55,27 @@ INCLUDE(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
 CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX1Z)
 
+# If the current compiler environment is detected to support AES.
+SET(__AES_NI__ FALSE)
+IF(__AES_NI__)
+    # Add in the compiler flag section.
+    ADD_COMPILE_OPTIONS(-maes -msse2 -mpclmul)
+
+    # Add the AES_NI compiler macro.
+    ADD_DEFINITIONS(-D__AES_NI__)
+
+    # Additional options for the old version of GCC.
+    IF(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
+        ADD_COMPILE_OPTIONS(-march=westmere)
+        ADD_COMPILE_OPTIONS(-fno-stack-protector)
+    ENDIF()
+
+    # AES is enabled, the source code of AES/128/256/CFB related to the library needs to be compiled.
+    FILE(GLOB_RECURSE AES_NI_SOURCE_FILES
+            ${PROJECT_ROOT_DIR}/common/aesni/impl/*.c
+            ${PROJECT_ROOT_DIR}/common/aesni/impl/*.cpp)
+ENDIF()
+
 # According to the type of operating system to determine whether you need to check whether the compiler supports C/C++17, 
 # On the MACOS system, the following check code is invalid, so directly specify the standard version of C/C++, 
 # If an error or compilation does not pass, it means that you need to upgrade the LLVM GCC/CLANG compiler installed on MACOS.
@@ -102,6 +123,7 @@ FILE(GLOB_RECURSE SOURCE_FILES
         ${PROJECT_ROOT_DIR}/common/dnslib/*.cpp
         ${PROJECT_ROOT_DIR}/common/unix/*.c
         ${PROJECT_ROOT_DIR}/common/unix/*.cpp
+        ${PROJECT_ROOT_DIR}/common/aesni/aes.cpp
 
         ${PROJECT_ROOT_DIR}/ppp/*.c
         ${PROJECT_ROOT_DIR}/ppp/*.cpp
@@ -112,7 +134,7 @@ FILE(GLOB_RECURSE SOURCE_FILES
         ${PROJECT_ROOT_DIR}/android/libopenppp2.cpp)
 
 # Add the compiled output binary files.
-ADD_LIBRARY(${NAME} SHARED ${SOURCE_FILES})
+ADD_LIBRARY(${NAME} SHARED ${SOURCE_FILES} ${PLATFORM_SOURCE_FILES} ${AES_NI_SOURCE_FILES})
 
 # Set the compilation output files path.
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_ROOT_DIR}/bin/${ANDROID_ABI})
