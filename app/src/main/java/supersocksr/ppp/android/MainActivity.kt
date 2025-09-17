@@ -159,6 +159,7 @@ class MainActivity : PppVpnActivity() {
         tcp.apply {
           inactive.timeout = Macro.PPP_TCP_INACTIVE_TIMEOUT
           connect.timeout = Macro.PPP_TCP_CONNECT_TIMEOUT
+          connect.nexcept = Macro.PPP_TCP_CONNECT_NEXCEPT
           turbo = true
           backlog = Macro.PPP_LISTEN_BACKLOG
           fast_open = true

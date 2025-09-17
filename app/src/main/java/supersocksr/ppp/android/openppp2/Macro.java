@@ -10,6 +10,7 @@ public final class Macro {
 
     public static final int PPP_LISTEN_BACKLOG = 511;
     public static final int PPP_TCP_CONNECT_TIMEOUT = 5;
+    public static final int PPP_TCP_CONNECT_NEXCEPT = 4;
     public static final int PPP_TCP_INACTIVE_TIMEOUT = 300;
     public static final int PPP_UDP_INACTIVE_TIMEOUT = 72;
     public static final int PPP_MUX_CONNECT_TIMEOUT = 20;

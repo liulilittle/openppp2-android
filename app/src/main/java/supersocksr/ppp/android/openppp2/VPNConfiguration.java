@@ -176,6 +176,12 @@ public final class VPNConfiguration {
         public int rwnd;
     }
 
+    public static class ConnectConfiguration extends TimeoutConfiguration {
+        @SerializedName("nexcept")
+        @Expose(serialize = true, deserialize = true)
+        public int nexcept;
+    }
+
     public static class TcpConfiguration extends WindowSizeConfiguration {
         @SerializedName("inactive")
         @Expose(serialize = true, deserialize = true)
@@ -183,7 +189,7 @@ public final class VPNConfiguration {
 
         @SerializedName("connect")
         @Expose(serialize = true, deserialize = true)
-        public final TimeoutConfiguration connect = new TimeoutConfiguration();
+        public final ConnectConfiguration connect = new ConnectConfiguration();
 
         @SerializedName("turbo")
         @Expose(serialize = true, deserialize = true)
