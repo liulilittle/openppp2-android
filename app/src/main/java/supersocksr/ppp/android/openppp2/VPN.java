@@ -153,8 +153,8 @@ public final class VPN {
     }
 
     // Set the list of DNS servers used when the VPN framework is running.
-    public static boolean vpn_set_dns_addresses(int ttl, String servers) {
-        return libopenppp2.c.set_dns_bcl(ttl, servers);
+    public static boolean vpn_set_dns_addresses(boolean turbo, int ttl, String servers) {
+        return libopenppp2.c.set_dns_bcl(turbo, ttl, servers);
     }
 
     // Enter the url and return the vpn's absolute link processing.

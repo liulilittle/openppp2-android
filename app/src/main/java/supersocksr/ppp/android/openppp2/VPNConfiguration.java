@@ -164,6 +164,10 @@ public final class VPNConfiguration {
         @SerializedName("cache")
         @Expose(serialize = true, deserialize = true)
         public boolean cache;
+
+        @SerializedName("turbo")
+        @Expose(serialize = true, deserialize = true)
+        public boolean turbo;
     }
 
     public static class WindowSizeConfiguration {
