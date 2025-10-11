@@ -90,6 +90,7 @@ public final class VPNConfiguration {
 
         config.client.guid = "{F4569208-BB45-4DEB-B115-0FEA1D91B85B}";
         config.client.server = "ppp://127.0.0.1:20000/";
+        config.client.server_proxy = "";
         config.client.bandwidth = 10000;
         config.client.reconnections.timeout = Macro.PPP_TCP_CONNECT_TIMEOUT;
         config.client.http_proxy.bind = "127.0.0.1";
@@ -306,6 +307,10 @@ public final class VPNConfiguration {
         @SerializedName("server")
         @Expose(serialize = true, deserialize = true)
         public String server;
+
+        @SerializedName("server-proxy")
+        @Expose(serialize = true, deserialize = true)
+        public String server_proxy;
 
         @SerializedName("bandwidth")
         @Expose(serialize = true, deserialize = true)
